@@ -5,8 +5,8 @@
 
 library(devtools) # can be added to .Rprofile startup file
 
-p <- "W:/projects/R/swecoords"
-usethis::create_package(p, check_name = FALSE)
+# p <- "W:/projects/R/swecoords"
+# usethis::create_package(p, check_name = FALSE)
 
 load_all()
 
