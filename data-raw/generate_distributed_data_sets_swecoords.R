@@ -1,10 +1,11 @@
 library(usethis)
-library(eagles)
+# library(swecoords)
 library(stringi)
+library(tidyverse)
 
 # Create data sets ----
-wms_layers_data <- wms_sources()
-tms_layers_data <- tms_sources()
+wms_layers_data <- swecoords::wms_sources()
+tms_layers_data <- swecoords::tms_sources()
 
 # Export data sets ----
 use_data(wms_layers_data, overwrite = TRUE)
@@ -30,7 +31,7 @@ storrutor |>
   select(where(is.character)) |>
   map(\(x) Encoding(x) <- "UTF-8")
 
-dat1 <- storrutor %>%
+dat1 <- storrutor |>
   mutate(across(where(is.character), ~ `Encoding<-`(.x, "UTF-8")))
 
 dat1 |>

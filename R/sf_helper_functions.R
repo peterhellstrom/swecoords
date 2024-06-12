@@ -4,14 +4,14 @@ sfc_as_cols <- function(x, geometry, names = c("x","y"), drop_geometry = FALSE) 
   if (missing(geometry)) {
     geometry <- sf::st_geometry(x)
   } else {
-    geometry <- rlang::eval_tidy(enquo(geometry), x)
+    geometry <- rlang::eval_tidy(rlang::enquo(geometry), x)
   }
   stopifnot(inherits(x,"sf") && inherits(geometry,"sfc_POINT"))
   ret <- sf::st_coordinates(geometry)
   ret <- tibble::as_tibble(ret)
   stopifnot(length(names) == ncol(ret))
   x <- x[ , !names(x) %in% names]
-  ret <- setNames(ret,names)
+  ret <- stats::setNames(ret, names)
   x <- dplyr::bind_cols(x,ret)
   if (drop_geometry) {
     x <- x |>
@@ -24,7 +24,7 @@ sfc_as_cols <- function(x, geometry, names = c("x","y"), drop_geometry = FALSE) 
 #' @export
 st_add_geom_column <- function(.x, coords, crs = 3006) {
   .x |>
-    sf::st_as_sf(coords = {{coords}}, crs = crs) |>
+    sf::st_as_sf(coords = {{ coords }}, crs = crs) |>
     sf::st_geometry()
 }
 
@@ -34,14 +34,14 @@ st_add_geom_column_round <- function(
     centroid = TRUE, crs = 3006) {
 
   for (i in seq_along(.g)) {
-    .x_coords <- st_coordinates(.x) %>%
-      as_tibble()
+    .x_coords <- sf::st_coordinates(.x) %>%
+      tibble::as_tibble()
 
     .x_coords_round <- .x_coords %>%
-      mutate(across(X:Y, ~ round_coords(., .g[[i]], centroid)))
+      dplyr::mutate(dplyr::across(X:Y, ~ round_coords(., .g[[i]], centroid)))
 
-    .x_col <- st_as_sf(.x_coords_round, coords = c("X", "Y"), crs = crs) %>%
-      st_geometry()
+    .x_col <- sf::st_as_sf(.x_coords_round, coords = c("X", "Y"), crs = crs) %>%
+      sf::st_geometry()
 
     .x[[.g_names[i]]] <- .x_col
   }
@@ -54,7 +54,7 @@ st_extract_pt_coords <- function (.x) {
   if (class(.x)[1] == "sf") {
     # Check if input geometry type is point, if not convert to point geometry type by
     # extracting centroid. This may not be the appropriate behavior?
-    if (!inherits(st_geometry(.x), "sfc_POINT")) {
+    if (!inherits(sf::st_geometry(.x), "sfc_POINT")) {
       .x <- sf::st_centroid(.x)
     }
     crs <- sf::st_crs(.x)$epsg
@@ -73,7 +73,7 @@ st_erase <- function(x, y) {
 }
 
 #' @export
-st_filter = function(.x, .y, .pred = st_intersects) {
+st_filter = function(.x, .y, .pred = sf::st_intersects) {
   # this is equal to .x[.y, op = st_intersects]
   # check that dplyr is loaded, then
   dplyr::filter(.x, lengths(.pred(.x, .y)) > 0)
@@ -124,7 +124,7 @@ count_points_in_polygons <- function(
     name = "n_total"
 ) {
   polygons[points, ] |>
-    {\(.) mutate(., {{ name }} := lengths(fn(., points)))}()
+    {\(.) dplyr::mutate(., {{ name }} := base::lengths(fn(., points)))}()
 }
 
 #' @export
@@ -140,25 +140,41 @@ list_layers <- function(x) {
 #' @export
 # Note: st_layers does not include feature dataset for FileGDBs
 st_layers_tibble <- function(.x) {
-  sf::st_layers(.x) |> list_layers()
+  sf::st_layers(.x) |>
+    list_layers()
 }
 
 #' @export
-gpkg_contents <- function(.x) {
+gpkg_contents <- function(.x, include_bbox = TRUE) {
 
   x <- st_layers_tibble(.x)
 
   con <- DBI::dbConnect(RSQLite::SQLite(), .x)
 
-  x_contents <- DBI::dbGetQuery(con, 'SELECT * FROM gpkg_contents') |>
+  x_contents <- DBI::dbGetQuery(
+    con, 'SELECT * FROM gpkg_contents'
+  ) |>
     tibble::as_tibble() |>
-    dplyr::mutate(last_change = readr::parse_datetime(last_change))
+    dplyr::mutate(
+      last_change = readr::parse_datetime(last_change)
+    )
 
   DBI::dbDisconnect(con)
 
   x <- x |>
-    dplyr::left_join(x_contents, by = c("name" = "table_name")) |>
+    dplyr::left_join(
+      x_contents,
+      dplyr::join_by(name == table_name)
+    ) |>
     dplyr::arrange(name)
+
+  x <- x |>
+    dplyr::select(-driver, -data_type, -description, -identifier)
+
+  if (!include_bbox) {
+    x <- x |> dplyr::select(-c(min_x:max_y))
+  }
+
   x
 
 }
@@ -231,23 +247,23 @@ set_epsg_gpkg <- function(dsn, layer, epsg = 3006, delete_srid = NULL) {
 
 #' @export
 stdh_cast_substring <- function(x, to = "MULTILINESTRING") {
-  ggg <- st_geometry(x)
+  ggg <- sf::st_geometry(x)
 
-  if (!unique(st_geometry_type(ggg)) %in% c("POLYGON", "LINESTRING")) {
+  if (!unique(sf::st_geometry_type(ggg)) %in% c("POLYGON", "LINESTRING")) {
     stop("Input should be  LINESTRING or POLYGON")
   }
-  for (k in 1:length(st_geometry(ggg))) {
+  for (k in 1:length(sf::st_geometry(ggg))) {
     sub <- ggg[k]
     geom <- lapply(
-      1:(length(st_coordinates(sub)[, 1]) - 1),
+      1:(length(sf::st_coordinates(sub)[, 1]) - 1),
       function(i)
         rbind(
-          as.numeric(st_coordinates(sub)[i, 1:2]),
-          as.numeric(st_coordinates(sub)[i + 1, 1:2])
+          as.numeric(sf::st_coordinates(sub)[i, 1:2]),
+          as.numeric(sf::st_coordinates(sub)[i + 1, 1:2])
         )
     ) %>%
-      st_multilinestring() %>%
-      st_sfc()
+      sf::st_multilinestring() %>%
+      sf::st_sfc()
 
     if (k == 1) {
       endgeom <- geom
@@ -256,13 +272,13 @@ stdh_cast_substring <- function(x, to = "MULTILINESTRING") {
       endgeom <- rbind(endgeom, geom)
     }
   }
-  endgeom <- endgeom %>% st_sfc(crs = st_crs(x))
+  endgeom <- endgeom %>% st_sfc(crs = sf::st_crs(x))
   if (class(x)[1] == "sf") {
-    endgeom <- st_set_geometry(x, endgeom)
+    endgeom <- sf::st_set_geometry(x, endgeom)
   }
 
   if (to == "LINESTRING") {
-    endgeom <- endgeom %>% st_cast("LINESTRING")
+    endgeom <- endgeom %>% sf::st_cast("LINESTRING")
   }
   return(endgeom)
 }
@@ -274,11 +290,11 @@ split_holes <- function(.data, .crs = 3006, .area_unit = "km^2") {
     tibble::as_tibble() |>
     dplyr::group_by(L1)
 
-  if (n_groups(out) > 0) {
+  if (dplyr::n_groups(out) > 0) {
 
     out <- out %>%
       # Split into separate lists
-      group_split() %>%
+      dplyr::group_split() %>%
       # Convert to sf-object, polygons
       purrr::map(~ dplyr::select(., X, Y) %>%
             as.matrix() %>%
@@ -292,11 +308,13 @@ split_holes <- function(.data, .crs = 3006, .area_unit = "km^2") {
       # Bind all polygons together
       dplyr::bind_rows() %>%
       # Calculate area of each polygon
-      dplyr::mutate(Area = st_area(.)) %>%
+      dplyr::mutate(Area = sf::st_area(.)) %>%
       # Set units
-      dplyr::mutate(Area = units::set_units(Area, .area_unit, mode = "standard")) %>%
+      dplyr::mutate(
+        Area = units::set_units(Area, .area_unit, mode = "standard")
+      ) %>%
       # Sort in descending order based on area
-      arrange(desc(Area))
+      dplyr::arrange(dplyr::desc(Area))
 
     out
   }

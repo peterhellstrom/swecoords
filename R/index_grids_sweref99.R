@@ -52,7 +52,7 @@ sweref99_index <- function(
   }
 
   # round up to nearest "parent" main grid cell, i.e. c(100000, 10000, 1000, 100, 10, 1)
-  g_up <- round_up(g)
+  g_up <- eagles::round_up(g)
   g_type <- g / g_up # 1 = main grid cell, 0.5 = quarter-cell, 0.25 = sixteenth-cell
   index_main <- stringr::str_c(
     floor(.y / g_up),
@@ -74,15 +74,15 @@ sweref99_index <- function(
     g_type == 0.5 ~ stringr::str_c(
       index_main,
       stringr::str_c(
-        10 * round_any(.y %% g_up / g_up, g_type, floor),
-        10 * round_any(.x %% g_up / g_up, g_type, floor)
+        10 * eagles::round_any(.y %% g_up / g_up, g_type, floor),
+        10 * eagles::round_any(.x %% g_up / g_up, g_type, floor)
       ),
       sep = "_"),
     g_type == 0.25 ~ stringr::str_c(
       index_main,
       stringr::str_c(
-        str_pad(100 * round_any(.y %% g_up / g_up, g_type, floor), width = 2, pad = "0"),
-        str_pad(100 * round_any(.x %% g_up / g_up, g_type, floor), width = 2, pad = "0")
+        str_pad(100 * eagles::round_any(.y %% g_up / g_up, g_type, floor), width = 2, pad = "0"),
+        str_pad(100 * eagles::round_any(.x %% g_up / g_up, g_type, floor), width = 2, pad = "0")
       ),
       sep = "_")
   )

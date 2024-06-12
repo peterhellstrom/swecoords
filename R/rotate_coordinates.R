@@ -55,19 +55,22 @@ rotate_pt <- function(x, y, angle, x.origo = NULL, y.origo = NULL, output = "sho
 }
 
 # Rotate many points with the same origo/coordinate system and angle.
-# This functions calls rotate_pt, and reapeats the rotation procedure.
+# This functions calls rotate_pt, and repeats the rotation procedure.
 #' @export
 rotate_pts <- function(x, y, angle, x.origo = NULL, y.origo = NULL, output = "short") {
 
-	if (length(x) != length(y)) stop("x & y of unequal length")
+  if (length(x) != length(y)) stop("x & y of unequal length")
 
-	n <- length(x)
-	if (length(angle) == 1) angle <- rep(angle,n)
-	if (length(x.origo) == 1) x.origo <- rep(x.origo,n)
-	if (length(y.origo) == 1) y.origo <- rep(y.origo,n)
+  n <- length(x)
+  if (length(angle) == 1) angle <- rep(angle,n)
+  if (length(x.origo) == 1) x.origo <- rep(x.origo,n)
+  if (length(y.origo) == 1) y.origo <- rep(y.origo,n)
 
-	out <- sapply(1:n, function(i) rotatePt(x = x[i], y[i], angle = angle[i], x.origo = x.origo[i], y.origo = y.origo[i], output = output))
-	out <- t(out)
-	colnames(out) <- c("x", "y")
-	out
+  out <- sapply(1:n, function(i) {
+    rotate_pt(x = x[i], y[i], angle = angle[i], x.origo = x.origo[i], y.origo = y.origo[i], output = output)
+  }
+  )
+  out <- t(out)
+  colnames(out) <- c("x", "y")
+  out
 }

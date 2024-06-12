@@ -12,13 +12,12 @@
 # to_coord_sys, valid options:
 # WGS84 (4326), RT90 2.5 gon V (3021), SWEREF 99 TM (3006), UTM33N
 
-#' @export
 xml_fun <- function(x){
-   y <- xpathSApply(x, './a', xmlAttrs)
+   y <- XML::xpathSApply(x, './a', XML::xmlAttrs)
    if(length(y) > 0){
       y
    } else {
-      xmlValue(x)
+      XML::xmlValue(x)
    }
 }
 
@@ -34,25 +33,44 @@ get_coord <- function(
   if (!from_coord_sys %in% c("AUTO", "4326", "3021", "3006")) stop("Not a valid input coordinate system")
   if (!to_coord_sys %in% c("4326", "3021", "3006")) stop("Not a valid input coordinate system")
 
-  ifelse("package:XML" %in% search() == FALSE, library(XML), "")
-
   latlon <- cbind(lat, lon)
 
-  Cclass <- c("numeric","numeric","character","character","character","character", "numeric","numeric","character","numeric",
-              "character","character","character","character","character","character","character")
+  Cclass <- c(
+    "numeric","numeric","character","character","character","character",
+    "numeric","numeric","character","numeric", "character","character",
+    "character","character","character","character","character"
+  )
+
   res <- vector("list", nrow(latlon))
 
-  if (from_coord_sys != "AUTO") from_coord_sys <- paste("EPSG:", from_coord_sys, sep = "")
+  if (from_coord_sys != "AUTO") {
+    from_coord_sys <- paste("EPSG:", from_coord_sys, sep = "")
+  }
 
   for (i in 1:nrow(latlon)) {
-    doc <- paste("http://ormbunkar.se/koordinater/GeorefServlet?", "lat=", latlon[i,1],"&lon=", latlon[i,2],
-                 "&from_coord_sys=", from_coord_sys, "&to_coord_sys=EPSG:", to_coord_sys, sep = "")
-    doc.table <- getNodeSet(htmlParse(doc), "//table")[[1]]
-    res[[i]] <- readHTMLTable(doc.table, colClasses = Cclass, stringsAsFactors = FALSE, encoding = encoding, elFun = xml_fun)
+    doc <- paste(
+      "http://ormbunkar.se/koordinater/GeorefServlet?",
+      "lat=", latlon[i,1],"&lon=", latlon[i,2],
+      "&from_coord_sys=", from_coord_sys,
+      "&to_coord_sys=EPSG:", to_coord_sys, sep = ""
+    )
+
+    doc.table <- XML::getNodeSet(XML::htmlParse(doc), "//table")[[1]]
+
+    res[[i]] <- XML::readHTMLTable(
+      doc.table,
+      colClasses = Cclass,
+      stringsAsFactors = FALSE,
+      encoding = encoding,
+      elFun = xml_fun
+    )
   }
+
   res <- do.call("rbind", res)
   rownames(res) <- NULL
+
   if (karta == FALSE) res <- res[,-ncol(res)]
+
   if (simplify == TRUE) {
     short.res <- res[,c(7,8)]
     colnames(short.res) <- c("New_lat","New_lon")

@@ -12,7 +12,9 @@ copy_from_gpkg <- function(
 
   if (!is.null(filter_expr)) {
     f <- f |>
-      dplyr::filter(stringr::str_detect(name, filter_expr))
+      dplyr::filter(
+        stringr::str_detect(name, filter_expr)
+      )
   }
 
   f_copy <- f |>
@@ -32,5 +34,6 @@ copy_from_gpkg <- function(
   system(
     command = "cmd.exe",
     input = cmd_n,
-    show.output.on.console = TRUE)
+    show.output.on.console = TRUE
+  )
 }

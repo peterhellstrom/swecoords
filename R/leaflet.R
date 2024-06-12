@@ -9,7 +9,13 @@
 # tillämpning i shiny?
 # Check: do lm_basemaps work also for CRS:3857 and not only CRS:3006?
 
+
+#' Title
+#'
+#' @return
 #' @export
+#'
+#' @examples
 leaflet_crs_3006 <- function() {
   leaflet::leafletCRS(
     crsClass = "L.Proj.CRS",
@@ -24,7 +30,22 @@ leaflet_crs_3006 <- function() {
   )
 }
 
+#' Title
+#'
+#' @param map
+#' @param group
+#' @param url
+#' @param layers
+#' @param format
+#' @param transparent
+#' @param opacity
+#' @param styles
+#' @param ...
+#'
+#' @return
 #' @export
+#'
+#' @examples
 wms_add <- function(
     map,
     group,
@@ -50,7 +71,18 @@ wms_add <- function(
   )
 }
 
+
+#' Title
+#'
+#' @param path
+#' @param layers_sheet
+#' @param url_sheet
+#' @param sep
+#'
+#' @return
 #' @export
+#'
+#' @examples
 wms_sources <- function(
     path = "inst/extdata/wms_sources.xlsx",
     layers_sheet = "wms_layers",
@@ -72,7 +104,22 @@ wms_sources <- function(
     dplyr::filter(!url_id %in% c("allmanna_kartor", "lm_geodata_intern"))
 }
 
+#' Title
+#'
+#' @param .data
+#' @param crs
+#' @param wms_layers
+#' @param setView_lng
+#' @param setView_lat
+#' @param setView_zoom
+#' @param addOverlayGroups
+#' @param collapseLayersControl
+#' @param add_extras
+#'
+#' @return
 #' @export
+#'
+#' @examples
 lm_basemaps <- function(
     .data = NULL,
     crs = leaflet_crs_3006(),
@@ -146,7 +193,27 @@ lm_basemaps <- function(
   m
 }
 
+
+#' Title
+#'
+#' @param .data
+#' @param crs
+#' @param topowebb_url
+#' @param ortofoto_url
+#' @param hojdmodell_url
+#' @param fastigheter_url
+#' @param historiska_ortofoton_url
+#' @param marktacke_url
+#' @param setView_lng
+#' @param setView_lat
+#' @param setView_zoom
+#' @param addOverlayGroups
+#' @param CollapseLayerscontrol
+#'
+#' @return
 #' @export
+#'
+#' @examples
 lm_basemaps_old <- function(
     .data = NULL,
     crs = leaflet_crs_3006(),
@@ -270,8 +337,8 @@ lm_basemaps_old <- function(
       styles = c("registerkarta", "registerkarta"))
 
   # Add layers control
-  m <- leaflet::m |>
-    addLayersControl(
+  m <- m |>
+    leaflet::addLayersControl(
       position = 'bottomright',
       baseGroups =
         c("LM topowebb", "LM topowebb nedtonad",
@@ -290,16 +357,25 @@ lm_basemaps_old <- function(
         "Fastighetsgränser (registerkarta)",
         addOverlayGroups),
       options = leaflet::layersControlOptions(
-        collapsed = CollapseLayerscontrol)) |>
+        collapsed = CollapseLayerscontrol)
+    ) |>
     leaflet::hideGroup(c(
       "Fastighetsgränser (röda)",
       "Fastighetsgränser (gula)",
-      "Fastighetsgränser (registerkarta)")
+      "Fastighetsgränser (registerkarta)"
+    )
     )
   m
 }
 
+#' Title
+#'
+#' @param map
+#'
+#' @return
 #' @export
+#'
+#' @examples
 lm_basemaps_add_extras <- function(map) {
   map |>
     leafem::addMouseCoordinates(
@@ -316,7 +392,7 @@ lm_basemaps_add_extras <- function(map) {
     ) |>
     leaflet::addScaleBar(
       position = "bottomleft",
-      options = scaleBarOptions(metric = TRUE, imperial = FALSE)
+      options = leaflet::scaleBarOptions(metric = TRUE, imperial = FALSE)
     ) |>
     leaflet::addMeasure(
       position = "topleft",
@@ -340,17 +416,43 @@ lm_basemaps_add_extras <- function(map) {
     )
 }
 
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
 #' @export
+#'
+#' @examples
 remove_na <- function(x) {
   x[!is.na(x)]
 }
 
+
+#' Title
+#'
+#' @param x
+#' @param y
+#'
+#' @return
 #' @export
+#'
+#' @examples
 options_sublist <- function(x, y = c("service", "group", "urlTemplate")) {
   c(x[names(x) %in% y], options = list(x[!names(x) %in% y]))
 }
 
+
+#' Title
+#'
+#' @param path
+#' @param layers_sheet
+#'
+#' @return
 #' @export
+#'
+#' @examples
 tms_sources <- function(
     path = "inst/extdata/wms_sources.xlsx",
     layers_sheet = "tms") {
@@ -366,7 +468,18 @@ tms_sources <- function(
 
 }
 
+
+#' Title
+#'
+#' @param tile_providers
+#' @param lng
+#' @param lat
+#' @param zoom
+#'
+#' @return
 #' @export
+#'
+#' @examples
 swe_tiles <- function(
     tile_providers = tms_layers_data,
     lng = 15,
@@ -399,7 +512,18 @@ swe_tiles <- function(
   m
 }
 
+#' Title
+#'
+#' @param long
+#' @param lat
+#' @param popup
+#' @param fitbounds
+#' @param zoom
+#'
+#' @return
 #' @export
+#'
+#' @examples
 simpleLeaflet <- function(long, lat, popup, fitbounds = TRUE, zoom = 13) {
 
   d <- data.frame(

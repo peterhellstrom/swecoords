@@ -26,7 +26,7 @@ daro_flode <- function(aroid, direction = c("down", "up"), data = daro) {
       i <- i + 1
       out[[i]] <- aroid }
     # Remove final AROID, since this is (always) in the sea
-    inds <- head(unlist(out), -1)
+    inds <- utils::head(unlist(out), -1)
     daro_flode_sf(data, inds, add_flow_id = TRUE)
     #data[data$"AROID" %in% inds,]
   }
@@ -75,14 +75,14 @@ daro_flode_sf <- function(data, index, add_flow_id = FALSE) {
 #' @export
 aroid_group <- function(.x, .field) {
 
-  x <- map_dfr(
+  x <- purrr::map_dfr(
     .x$aroid |> rlang::set_names(),
     \(x) daro_flode(x, direction = "up"),
     .id = "aroid_grp"
   )
 
   x <- x |>
-    inner_join(.x, join_by(aroid_grp == aroid))
+    dplyr::inner_join(.x, dplyr::join_by(aroid_grp == aroid))
 
   x_s <- x |>
     dplyr::group_by(AROID) |>
@@ -111,7 +111,7 @@ aroid_group_dissolve <- function(.x, .x_attr, .field = aroid_grp, .attr_field = 
     dplyr::group_by( {{ .field }}) |>
     dplyr::summarize() |>
     dplyr::inner_join(
-       .x_attr, join_by( {{ .field }} == {{ .attr_field }})
+       .x_attr, dplyr::join_by( {{ .field }} == {{ .attr_field }})
     ) |>
     # dplyr::arrange(grupp, ordn) |>
     { \(.) dplyr::mutate(., area = sf::st_area(.)) }() |>

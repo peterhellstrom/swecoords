@@ -5,28 +5,30 @@
 # routes: list with data frames
 
 # It is worth mentioning that the perhaps easiest [and fastest way] way to convert
-# gpx to shp "as-is", is from the command line in OSGeo4W, for instance:
+# gpx "as-is", is from the command line in OSGeo4W, for instance:
 # ogr2ogr -f "ESRI Shapefile" Flygtracks_var_tracks.shp Flygtracks_var.gpx tracks
 # ogr2ogr -f "GPKG" Flygdata.gpkg Flygtracks_var.gpx tracks -nln "tracks"
 # ogr2ogr -f "GPKG" -update Flygdata.gpkg Flygtracks_var.gpx track_points -nln "track_points"
+# Or, more recently, use sf's native interface to GDAL, sf::gdal_utils()
 
 # ToDo: write description what this function actually does in comparison to st_read
 
 #' @export
 gpx_to_sf <- function(
-  x,
+  .x,
   data_type = c("route_points", "track_points", "waypoints"),
 	bearing = FALSE,
   convert_time = TRUE,
   current_time_zone = TRUE,
-	lines = FALSE
+	lines = FALSE,
+  ...
 ) {
 
 	data_type <- match.arg(data_type)
 
 	# Calculate bearing
 	if (bearing) {
-	  x <- x |>
+	  .x <- .x |>
 	    tidyr::nest() |>
 	    dplyr::mutate(
 	      b = purrr::map(data, bearing_df)
@@ -37,84 +39,105 @@ gpx_to_sf <- function(
 
 	# Convert time
 	if (convert_time) {
-		if ("time" %in% names(x)) {
-			x <- x |>
-				#dplyr::ungroup() %>%
-				mutate(
+		if ("time" %in% names(.x)) {
+			.x <- .x |>
+				dplyr::mutate(
 				  time = lubridate::ymd_hms(
 				    time,
 				    tz = Sys.timezone(location = current_time_zone)
 				  )
 				)
-				#dplyr::group_by(id_field)
 		}
 	}
 
-	# deal with waypoints layer?
 	if (lines) {
 		if (data_type == "track_points") {
+
 		  id_field <- "track_fid"
-			x <- x |>
-				sf::summarize(
-					n_points = dplyr::n(),
-					start_time = base::min(time),
-					end_time = base::max(time),
-					do_union = FALSE
+		  geometry_field <- base::attr(.x, "sf_column")
+
+		  .x <- .x |>
+		    dplyr::summarize(
+		      n_points = dplyr::n(),
+		      start_time = base::min(time),
+		      end_time = base::max(time),
+		      do_union = FALSE
+		    ) |>
+		    dplyr::mutate(
+		      sort_field = dplyr::row_number()
+		    ) |>
+		    sf::st_cast("LINESTRING") |>
+		    dplyr::mutate(
+		      track_length = sf::st_length(base::get(geometry_field)),
+		      track_year = lubridate::year(start_time),
+		    ) |>
+		    dplyr::select(
+		      tidyselect::all_of(id_field),
+		      sort_field, track_year,
+		      start_time, end_time,
+		      n_points, track_length
+		    )
+
+		} else if (data_type == "route_points") {
+
+		  id_field <- "route_fid"
+		  geometry_field <- base::attr(.x, "sf_column")
+
+		  .x <- .x |>
+				dplyr::summarize(
+				  n_points = dplyr::n(),
+				  do_union = FALSE
 				) |>
 				dplyr::mutate(
 				  sort_field = dplyr::row_number()
 				) |>
 				sf::st_cast("LINESTRING") |>
 				dplyr::mutate(
-					track_length = st_length(.),
-					track_year = lubridate::year(start_time),
+				  route_length = sf::st_length(base::get(geometry_field))
 				) |>
 				dplyr::select(
-				  all_of(id_field),
-				  sort_field, track_year,
-				  start_time, end_time,
-				  n_points, track_length
-				)
-
-		} else if (data_type == "route_points") {
-		  id_field <- "route_fid"
-			x <- x |>
-				sf::summarize(
-				  n_points = dplyr::n(),
-				  do_union = FALSE
-				) |>
-				dplyr::mutate(
-				  sort_field = row_number()
-				) |>
-				sf::st_cast("LINESTRING") |>
-				dplyr::mutate(route_length = st_length(.)) |>
-				dplyr::select(
-				  all_of(id_field),
+				  tidyselect::all_of(id_field),
 				  sort_field, n_points, route_length
 				)
 		}
 	}
 
-	x
+	.x
 }
 
 #' @export
 gps_route_points <- function(.x, crs = 3006) {
-  gpx_to_sf(
-    sf::read_sf(dsn = .x, layer = "route_points") |>
-      dplyr::group_by(route_fid),
+
+  obj <- sf::read_sf(dsn = .x, layer = "route_points") |>
+    dplyr::group_by(route_fid)
+
+  x_points <- gpx_to_sf(
+    obj,
     lines = FALSE,
     bearing = TRUE
-  ) |>
-    dplyr::left_join(
-      sf::read_sf(dsn = .x, layer = "routes") |>
-        dplyr::mutate(route_fid = dplyr::row_number() - 1) |>
-        sf::st_drop_geometry() |>
-        dplyr::select(route_fid, route_name = name),
-      dplyr::join_by(route_fid)
+  )
+
+  x_names <- sf::read_sf(dsn = .x, layer = "routes") |>
+    dplyr::mutate(
+      route_fid = dplyr::row_number() - 1
     ) |>
     dplyr::select(
-      route_name, route_fid, time,
+      route_fid, route_name = name
+    ) |>
+    sf::st_drop_geometry()
+
+  x_points |>
+    dplyr::left_join(
+      x_names,
+      dplyr::join_by(route_fid)
+    ) |>
+    dplyr::mutate(
+      route_wpt_number = dplyr::row_number()
+    ) |>
+    dplyr::select(
+      route_name, route_fid,
+      route_wpt_number,
+      time,
       name:desc, sym, type,
       bearing:c_dist, geometry
     ) |>
@@ -123,17 +146,29 @@ gps_route_points <- function(.x, crs = 3006) {
 
 #' @export
 gps_route_lines <- function(.x, crs = 3006) {
-  gpx_to_sf(
-    sf::read_sf(dsn = .x, layer = "route_points") |>
-      dplyr::group_by(route_fid),
+
+  obj <- sf::read_sf(dsn = .x, layer = "route_points") |>
+    dplyr::group_by(route_fid)
+
+  x_points <- gpx_to_sf(
+    obj,
     data_type = "route_points",
     lines = TRUE
+  )
+
+  x_names <- sf::read_sf(
+    dsn = .x,
+    layer = "routes"
   ) |>
+    dplyr::mutate(
+      route_fid = dplyr::row_number() - 1
+    ) |>
+    dplyr::select(route_fid, name) |>
+    sf::st_drop_geometry()
+
+  x_points |>
     dplyr::left_join(
-      sf::read_sf(dsn = .x, layer = "routes") |>
-        dplyr::mutate(route_fid = dplyr::row_number() - 1) |>
-        sf::st_drop_geometry() |>
-        dplyr::select(route_fid, name),
+      x_names,
       dplyr::join_by(route_fid)
     ) |>
     dplyr::rename(route_name = name) |>
@@ -146,18 +181,30 @@ gps_route_lines <- function(.x, crs = 3006) {
 
 #' @export
 gps_track_lines <- function(.x, crs = 3006, convert_time = FALSE) {
-  gpx_to_sf(
-    sf::read_sf(dsn = .x, layer = "track_points") |>
-      group_by(track_fid),
+
+  obj <- sf::read_sf(dsn = .x, layer = "track_points") |>
+    dplyr::group_by(track_fid)
+
+  x_points <- gpx_to_sf(
+    obj,
     data_type = "track_points",
     lines = TRUE,
     convert_time = convert_time
+  )
+
+  x_names <- sf::read_sf(
+    dsn = .x,
+    layer = "tracks"
   ) |>
+    dplyr::mutate(
+      track_fid = dplyr::row_number() - 1
+    ) |>
+    dplyr::select(track_fid, name) |>
+    sf::st_drop_geometry()
+
+  x_points |>
     dplyr::left_join(
-      sf::read_sf(dsn = .x, layer = "tracks") |>
-        dplyr::mutate(track_fid = dplyr::row_number() - 1) |>
-        sf::st_drop_geometry() |>
-        dplyr::select(track_fid, name),
+      x_names,
       dplyr::join_by(track_fid)
     ) |>
     dplyr::rename(track_name = name) |>
@@ -177,7 +224,7 @@ bearing_df <- function(x) {
     return(dplyr::do(x, bearing_df(.)))
   }
 
-	xy <- st_coordinates(x)
+	xy <- sf::st_coordinates(x)
 	colnames(xy) <- c("lon", "lat")
 
 	xy_b <- geosphere::bearing(xy) # geographic
@@ -290,7 +337,7 @@ rte_arrows <- function(x_lines, x_points) {
     stdh_cast_substring( {{ x_lines }}, "LINESTRING") |>
       dplyr::select(geometry),
     {{ x_points }} |>
-      dplyr::slice(1:(n()-1)) |>
+      dplyr::slice(1:(dplyr::n() - 1)) |>
       sf::st_drop_geometry()
   ) |>
     sf::st_centroid()

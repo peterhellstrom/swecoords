@@ -162,16 +162,18 @@ grid_filter <- function(
     filter_value,
     grid_size,
     .fn = eagles::sweref99_index) {
+
   sf::st_make_grid(
     data |>
       dplyr::filter( {{ filter_col}} == filter_value) |>
       sf::st_bbox() |>
       eagles::st_bbox_round(.size = grid_size),
-    cellsize = grid_size) |>
+    cellsize = grid_size
+  ) |>
     sf::st_sf(geometry = _) |>
-    {(\(.) mutate(
+    {(\(.) dplyr::mutate(
       .,
-      ruta = .fn(st_centroid(x = .), .grid_size = grid_size))
+      ruta = .fn(sf::st_centroid(x = .), .grid_size = grid_size))
     )}() |>
     eagles::st_filter(
       sf::st_union(
@@ -248,7 +250,7 @@ add_grid_neighbours <- function(
   # Add bounding box for each grid cell,
   # then calculate extent in x and y-direction
   map_grid <- map_grid |>
-    mutate(
+    dplyr::mutate(
       purrr::map_dfr(
         base::seq_len(base::nrow(map_grid)),
         \(x) sf::st_bbox(map_grid[x,])[1:4]
@@ -293,7 +295,7 @@ add_grid_neighbours <- function(
     }
 
     map_grid <- map_grid |>
-      {\(.) mutate(
+      {\(.) dplyr::mutate(
         .,
         "{page_variable}{sep}NW" := find_page_number(.d, +row_offset, -col_offset, page_variable),
         "{page_variable}{sep}N"  := find_page_number(.d, +row_offset, 0          , page_variable),
@@ -307,7 +309,7 @@ add_grid_neighbours <- function(
       }()
 
     map_grid <- map_grid |>
-      relocate(geometry, .after = last_col())
+      dplyr::relocate(geometry, .after = tidyselect::last_col())
     # attr(map_grid, "sf_column")
 
     # Convert numeric values to text, and replace NA with "empty string"

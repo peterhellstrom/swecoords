@@ -15,21 +15,25 @@
 # in a more consistent way.
 
 #' @export
-deg_to_rad <- function(angle) angle * (pi / 180)
+deg_to_rad <- function(angle) {
+  angle * (base::pi / 180)
+}
 
 #' @export
-rad_to_deg <- function(radians) radians * (180 / pi)
+rad_to_deg <- function(radians) {
+  radians * (180 / base::pi)
+}
 
 # Comments on ellipsoid() and swedish_parameters().
 # Previous versions were non-vectorized, as
 # they internally called switch. Changed from switch
-# to dplyr::case_mean, which is really fast in R (in comparison to switch),
+# to dplyr::case_match, which is really fast in R (in comparison to switch),
 # but when included in Shiny app,
-# it is the opposite... Explanation: performance of switch and case_mean
+# it is the opposite... Explanation: performance of switch and case_match
 # do scale differently.
-# case_mean takes almost the same execution time irrespective of sample size
+# case_match takes almost the same execution time irrespective of sample size
 # (and is really useful and fast for data sets with many rows),
-# but switch is in fact faster than case_mean for small sample sizes!
+# but switch is in fact faster than case_match for small sample sizes!
 # This became evident when using geodetic_to_grid in a Shiny app,
 # under such circumstances use the new p argument in grid_to_geodetic
 # and geodetic_to_grid which allows the user to pre-define a data frame
@@ -210,7 +214,7 @@ grid_to_geodetic <- function(
   longitude <- rad_to_deg(lon_radian)
 
   out <- data.frame(latitude, longitude)
-  setNames(out, colnames)
+  stats::setNames(out, colnames)
 
 }
 
@@ -270,7 +274,7 @@ geodetic_to_grid <- function(
     p$false_easting
 
   out <- data.frame(x, y)
-  setNames(out, colnames)
+  stats::setNames(out, colnames)
 }
 
 #' @export
@@ -291,22 +295,22 @@ grid_to_grid <- function(
     colnames_new = c("y", "x")) {
 
   out <- data %>%
-    mutate(
-      grid_to_geodetic({{y}}, {{x}}, {{from_epsg}}))
+    dplyr::mutate(
+      grid_to_geodetic( {{ y }}, {{ x }}, {{ from_epsg }} ) )
 
   out <- out %>%
-    mutate(
-      case_when(
+    dplyr::mutate(
+      dplyr::case_when(
         {{from_epsg}} == to_epsg ~ data.frame({{y}}, {{x}}) %>%
-          set_names(colnames_new),
+          rlang::set_names(colnames_new),
         TRUE ~ geodetic_to_grid(longitude, latitude, {{to_epsg}}, colnames_new))
       )
 
   if (round) {
     out <- out %>%
-      mutate(
-        across(all_of(colnames_new), ~ round(., round_grid)),
-        across(c(latitude, longitude), ~ round(., round_degrees)))
+      dplyr::mutate(
+        dplyr::across(tidyselect::all_of(colnames_new), ~ round(., round_grid)),
+        dplyr::across(c(latitude, longitude), ~ round(., round_degrees)))
   }
   out
 }
@@ -324,7 +328,7 @@ swe_transform <- function(
     ost, nord, crs_from, crs_to = c(3006, 3847),
     colnames_geodetic = c("latitude", "longitude"),
     colnames_grid_prefix = c("north", "east"),
-    colnames_grid = map(
+    colnames_grid = purrr::map(
       crs_to,
       ~ str_c(colnames_grid_prefix, .x, sep = "_")),
     round = FALSE,
@@ -357,9 +361,9 @@ swe_transform <- function(
 
   if (round) {
     d_out <- d_out %>%
-      mutate(
-        across(all_of(unlist(colnames_grid)), ~ round(., round_grid)),
-        across(all_of(colnames_geodetic), ~ round(., round_degrees)))
+      dplyr::mutate(
+        dplyr::across(tidyselect::all_of(unlist(colnames_grid)), ~ round(., round_grid)),
+        dplyr::across(tidyselect::all_of(colnames_geodetic), ~ round(., round_degrees)))
   }
 
   d_out
