@@ -31,16 +31,25 @@ st_add_geom_column <- function(.x, coords, crs = 3006) {
 #' @export
 st_add_geom_column_round <- function(
     .x, .g, .g_names,
-    centroid = TRUE, crs = 3006) {
+    centroid = TRUE,
+    crs = 3006
+) {
 
   for (i in seq_along(.g)) {
-    .x_coords <- sf::st_coordinates(.x) %>%
+
+    .x_coords <- sf::st_coordinates(.x) |>
       tibble::as_tibble()
 
-    .x_coords_round <- .x_coords %>%
-      dplyr::mutate(dplyr::across(X:Y, ~ round_coords(., .g[[i]], centroid)))
+    .x_coords_round <- .x_coords |>
+      dplyr::mutate(
+        dplyr::across(X:Y, ~ round_coords(., .g[[i]], centroid))
+      )
 
-    .x_col <- sf::st_as_sf(.x_coords_round, coords = c("X", "Y"), crs = crs) %>%
+    .x_col <- sf::st_as_sf(
+      .x_coords_round,
+      coords = c("X", "Y"),
+      crs = crs
+    ) |>
       sf::st_geometry()
 
     .x[[.g_names[i]]] <- .x_col
@@ -70,6 +79,34 @@ st_extract_pt_coords <- function (.x) {
 #' @export
 st_erase <- function(x, y) {
   sf::st_difference(x, sf::st_union(sf::st_combine(y)))
+}
+
+#' Title
+#'
+#' @param x
+#' @param y
+#'
+#' @return
+#' @export
+#'
+#' @examples
+st_union_full <- function(x, y) {
+
+  # function doing a "real" GIS union operation such as in QGIS or ArcGIS
+  # source: https://stackoverflow.com/questions/54710574/how-to-do-a-full-union-with-the-r-package-sf
+  # x - the first sf
+  # y - the second sf
+
+  sf::st_agr(x) = "constant"
+  sf::st_agr(y) = "constant"
+
+  op1 <- sf::st_difference(x, sf::st_union(y))
+  op2 <- sf::st_difference(y, sf::st_union(x))
+  op3 <- sf::st_intersection(y, x)
+
+  # union <- plyr::rbind.fill(op1, op2, op3)
+  # return(sf::st_as_sf(union))
+  sf::st_as_sf(dplyr::bind_rows(op1, op2, op3))
 }
 
 #' @export
@@ -179,32 +216,6 @@ gpkg_contents <- function(.x, include_bbox = TRUE) {
 
 }
 
-#' @export
-copy_layer <- function(.from_dsn, .from_layer, .to_dsn, .to_layer = .from_layer, ...) {
-  x <- sf::st_read(.from_dsn, .from_layer)
-  sf::st_write(x, .to_dsn, .to_layer, ...)
-}
-
-#' @export
-copy_layer_arc <- function(
-    .from_dsn, .from_layer, .to_dsn, .to_layer = .from_layer,
-    .feature_dataset = NULL, overwrite = TRUE, validate = TRUE) {
-
-  x <- sf::st_read(.from_dsn, .from_layer)
-  if (is.null(.feature_dataset) ) {
-    p <- file.path(.to_dsn, .to_layer) }
-  else {
-    p <- file.path(.to_dsn, .feature_dataset, .to_layer)
-  }
-
-  arcgisbinding::arc.write(p, x, overwrite = overwrite, validate = validate)
-  # arc.write(
-  #   p,
-  #   x,
-  #   shape_info = list(type = 'Polygon', hasZ = FALSE, WKID = 3006),
-  #   overwrite = TRUE, validate = TRUE)
-}
-
 # Edit epsg (SRID) to show correctly, st_write can not write the epsg (SRID) because this is apparently done in GDAL
 # and there's not a 1:1 relationship between epsg (SRID) and the proj4string. The proj4string is written correctly to the gpkg,
 # but SRID is not.
@@ -247,6 +258,7 @@ set_epsg_gpkg <- function(dsn, layer, epsg = 3006, delete_srid = NULL) {
 
 #' @export
 stdh_cast_substring <- function(x, to = "MULTILINESTRING") {
+
   ggg <- sf::st_geometry(x)
 
   if (!unique(sf::st_geometry_type(ggg)) %in% c("POLYGON", "LINESTRING")) {

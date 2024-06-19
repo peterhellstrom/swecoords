@@ -85,6 +85,7 @@ usethis::use_package("leafem", min_version = TRUE)
 usethis::use_package("geosphere", min_version = TRUE)
 usethis::use_package("rmapshaper", min_version = TRUE)
 usethis::use_package("units", min_version = TRUE)
+usethis::use_package("igraph", min_version = TRUE)
 
 usethis::use_package("DBI", min_version = TRUE)
 usethis::use_package("RSQLite", min_version = TRUE)
