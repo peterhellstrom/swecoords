@@ -331,3 +331,58 @@ split_holes <- function(.data, .crs = 3006, .area_unit = "km^2") {
     out
   }
 }
+
+#' Title
+#'
+#' @param x
+#' @param y
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_nearest <- function(x, y) {
+
+  near_ind <- sf::st_nearest_feature(x, y)
+
+  dplyr::bind_cols(
+    x |> st_drop_geometry(),
+    y[near_ind,] |> st_drop_geometry(),
+    tibble::tibble(
+      distance = sf::st_distance(
+        x,
+        y[near_ind,],
+        by_element = TRUE
+      )
+    )
+  ) |>
+    dplyr::mutate(
+      identical = dplyr::case_when(
+        distance < units::as_units(1, "m") ~ TRUE,
+        TRUE ~ FALSE
+      )
+    )
+}
+
+
+#' Title
+#'
+#' @param .data
+#' @param .na_values
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fix_import_shp_dates_NA <- function(.data, .na_values = c(-1)) {
+  .data |>
+    dplyr::mutate(
+      dplyr::across(
+        tidyselect::where(is.Date),
+        \(x) dplyr::case_when(
+          lubridate::year(x) %in% .na_values ~ NA,
+          TRUE ~ x
+        )
+      )
+    )
+}

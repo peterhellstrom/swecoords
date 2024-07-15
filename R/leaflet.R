@@ -47,13 +47,8 @@ leaflet_crs_3006 <- function() {
 #'
 #' @examples
 wms_add <- function(
-    map,
-    group,
-    url,
-    layers,
-    format = "image/png",
-    transparent = TRUE,
-    opacity = 1,
+    map, group, url, layers,
+    format = "image/png", transparent = TRUE, opacity = 1,
     styles = "",
     ...) {
 

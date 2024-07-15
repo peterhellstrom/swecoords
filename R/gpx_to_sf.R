@@ -342,3 +342,29 @@ rte_arrows <- function(x_lines, x_points) {
   ) |>
     sf::st_centroid()
 }
+
+#' Title
+#'
+#' @param x
+#' @param layer
+#' @param .cols
+#' @param crs
+#' @param .new_cols
+#'
+#' @return
+#' @export
+#'
+#' @examples
+import_gpx <- function(
+    x,
+    layer = "waypoints",
+    .cols = c(name, cmt, geometry),
+    crs = 3847,
+    .new_cols = c("Easting90", "Northing90")
+) {
+  sf::read_sf(x, layer = layer) |>
+    dplyr::select({{ .cols }}) |>
+    sf::st_transform(crs) |>
+    eagles::sfc_as_cols(names = .new_cols) |>
+    dplyr::relocate(geometry, .after = last_col())
+}
