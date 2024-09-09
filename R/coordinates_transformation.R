@@ -24,141 +24,6 @@ rad_to_deg <- function(radians) {
   radians * (180 / base::pi)
 }
 
-# Comments on ellipsoid() and swedish_parameters().
-# Previous versions were non-vectorized, as
-# they internally called switch. Changed from switch
-# to dplyr::case_match, which is really fast in R (in comparison to switch),
-# but when included in Shiny app,
-# it is the opposite... Explanation: performance of switch and case_match
-# do scale differently.
-# case_match takes almost the same execution time irrespective of sample size
-# (and is really useful and fast for data sets with many rows),
-# but switch is in fact faster than case_match for small sample sizes!
-# This became evident when using geodetic_to_grid in a Shiny app,
-# under such circumstances use the new p argument in grid_to_geodetic
-# and geodetic_to_grid which allows the user to pre-define a data frame
-# with transformation parameter values in order to speed up the
-# transformation calculations.
-
-#' @export
-ellipsoid <- function(.x) {
-  dplyr::case_match(
-    .x,
-    "GRS 80" ~ data.frame(a = 6378137, f = 1 / 298.257222101),
-    "Bessel 1841" ~ data.frame(a = 6377397.155, f = 1 / 299.1528128))
-}
-
-#' @export
-swedish_parameters <- function(crs) {
-
-  dplyr::case_match(
-    crs,
-    # RT90 parameters, "GRS 80" ellipsoid. Använd dessa vid direkt transformering <-> SWEREF99
-    3845 ~ data.frame(# rt90_7.5_gon_v
-      ellipsoid("GRS 80"),
-      lon_of_origin = 11 + 18.375/60, lat_of_origin = 0,
-      scale = 1.000006000000, false_northing = -667.282, false_easting = 1500025.141),
-    3846 ~ data.frame(# rt90_5.0_gon_v
-      ellipsoid("GRS 80"),
-      lon_of_origin = 13 + 33.376/60, lat_of_origin = 0,
-      scale = 1.000005800000, false_northing = -667.130, false_easting = 1500044.695),
-    3847 ~ data.frame(# rt90_2.5_gon_v
-      ellipsoid("GRS 80"),
-      lon_of_origin = 15 + 48/60 + 22.624306/3600, lat_of_origin = 0,
-      scale = 1.00000561024, false_northing = -667.711, false_easting = 1500064.274),
-    3848 ~ data.frame(# rt90_0.0_gon_v
-      ellipsoid("GRS 80"),
-      lon_of_origin = 18 + 3.378/60, lat_of_origin = 0,
-      scale = 1.000005400000, false_northing = -668.844, false_easting = 1500083.521),
-    3849 ~ data.frame(# rt90_2.5_gon_o
-      ellipsoid("GRS 80"),
-      lon_of_origin = 20 + 18.379/60, lat_of_origin = 0,
-      scale = 1.000005200000, false_northing = -670.706, false_easting = 1500102.765),
-    3850 ~ data.frame(# rt90_5.0_gon_o
-      ellipsoid("GRS 80"),
-      lon_of_origin = 22 + 33.380/60, lat_of_origin = 0,
-      scale = 1.000004900000, false_northing = -672.557, false_easting = 1500121.846),
-    # RT90 parameters, "Bessel 1841" ellipsoid
-    3019 ~ data.frame(# bessel_rt90_7.5_gon_v
-      ellipsoid("Bessel 1841"),
-      lon_of_origin = 11 + 18/60 + 29.8/3600, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 1500000),
-    3020 ~ data.frame(# bessel_rt90_5.0_gon_v
-      ellipsoid("Bessel 1841"),
-      lon_of_origin = 13 + 33/60 + 29.8/3600, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 1500000),
-    3021 ~ data.frame(# bessel_rt90_2.5_gon_v
-      ellipsoid("Bessel 1841"),
-      lon_of_origin = 15 + 48/60 + 29.8/3600, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 1500000),
-    3022 ~ data.frame(# bessel_rt90_0.0_gon_v
-      ellipsoid("Bessel 1841"),
-      lon_of_origin = 18 + 3/60 + 29.8/3600, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 1500000),
-    3023 ~ data.frame(# bessel_rt90_2.5_gon_o
-      ellipsoid("Bessel 1841"),
-      lon_of_origin = 20 + 18/60 + 29.8/3600, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 1500000),
-    3024 ~ data.frame(# bessel_rt90_5.0_gon_o
-      ellipsoid("Bessel 1841"),
-      lon_of_origin = 22 + 33/60 + 29.8/3600, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 1500000),
-    # SWEREF99TM and SWEREF99 ddmm parameters, "GRS 80" ellipsoid
-    3006 ~ data.frame(# sweref99_tm
-      ellipsoid("GRS 80"),
-      lon_of_origin = 15.00, lat_of_origin = 0,
-      scale = 0.9996, false_northing = 0, false_easting = 500000),
-    3007 ~ data.frame(# sweref99_1200
-      ellipsoid("GRS 80"),
-      lon_of_origin = 12.00, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3008 ~ data.frame(# sweref99_1330
-      ellipsoid("GRS 80"),
-      lon_of_origin = 13.50, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3012 ~ data.frame(# sweref99_1415
-      ellipsoid("GRS 80"),
-      lon_of_origin = 14.25, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3009 ~ data.frame(# sweref99_1500
-      ellipsoid("GRS 80"),
-      lon_of_origin = 15.00, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3013 ~ data.frame(# sweref99_1545
-      ellipsoid("GRS 80"),
-      lon_of_origin = 15.75, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3010 ~ data.frame(# sweref99_1630
-      ellipsoid("GRS 80"),
-      lon_of_origin = 16.50, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3014 ~ data.frame(# sweref99_1715
-      ellipsoid("GRS 80"),
-      lon_of_origin = 17.25, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3011 ~ data.frame(# sweref99_1800
-      ellipsoid("GRS 80"),
-      lon_of_origin = 18.00, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3015 ~ data.frame(# sweref99_1845
-      ellipsoid("GRS 80"),
-      lon_of_origin = 18.75, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3016 ~ data.frame(# sweref99_2015
-      ellipsoid("GRS 80"),
-      lon_of_origin = 20.25, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3017 ~ data.frame(# sweref99_2145
-      ellipsoid("GRS 80"),
-      lon_of_origin = 21.75, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000),
-    3018 ~ data.frame(# sweref99_2315
-      ellipsoid("GRS 80"),
-      lon_of_origin = 23.25, lat_of_origin = 0,
-      scale = 1, false_northing = 0, false_easting = 150000)
-  )
-}
-
 # y = ?, x = ?
 #' @export
 grid_to_geodetic <- function(
@@ -282,35 +147,44 @@ detect_crs <- function(north, east) {
   dplyr::case_when(
     between(north, 6100000, 7700000) & between(east, 1200000, 1900000) ~ 3847,
     between(north, 6000000, 7700000) & between(east, 200000, 1000000) ~ 3006,
-    between(north, 54, 70) & between(east, 10, 26) ~ 4326)
+    between(north, 54, 70) & between(east, 10, 26) ~ 4326
+  )
 }
 
 # Wrapper function(s) for direct transformation
 #' @export
 grid_to_grid <- function(
-    data, y, x,
-    from_epsg, to_epsg,
+    .data, y, x,
+    crs_from, crs_to,
     round = FALSE,
-    round_grid = 0, round_degrees = 6,
-    colnames_new = c("y", "x")) {
+    round_grid = 0,
+    round_degrees = 6,
+    colnames_new = c("y", "x")
+) {
 
-  out <- data %>%
+  out <- .data |>
     dplyr::mutate(
-      grid_to_geodetic( {{ y }}, {{ x }}, {{ from_epsg }} ) )
+      grid_to_geodetic( {{ y }}, {{ x }}, {{ crs_from }} ) )
 
-  out <- out %>%
+  out <- out |>
     dplyr::mutate(
       dplyr::case_when(
-        {{from_epsg}} == to_epsg ~ data.frame({{y}}, {{x}}) %>%
+        {{ crs_from }} == crs_to ~ data.frame( {{y}}, {{x}} ) |>
           rlang::set_names(colnames_new),
-        TRUE ~ geodetic_to_grid(longitude, latitude, {{to_epsg}}, colnames_new))
+        TRUE ~ geodetic_to_grid(longitude, latitude, {{ crs_to }}, colnames_new)
       )
+    )
 
   if (round) {
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
-        dplyr::across(tidyselect::all_of(colnames_new), ~ round(., round_grid)),
-        dplyr::across(c(latitude, longitude), ~ round(., round_degrees)))
+        dplyr::across(
+          tidyselect::all_of(colnames_new), \(x) round(x, round_grid)
+        ),
+        dplyr::across(
+          c(latitude, longitude), \(x) round(x, round_degrees)
+        )
+      )
   }
   out
 }
@@ -325,45 +199,77 @@ grid_to_grid <- function(
 
 #' @export
 swe_transform <- function(
-    ost, nord, crs_from, crs_to = c(3006, 3847),
+    ost,
+    nord,
+    crs_from, crs_to = c(3006, 3847),
     colnames_geodetic = c("latitude", "longitude"),
     colnames_grid_prefix = c("north", "east"),
     colnames_grid = purrr::map(
       crs_to,
-      ~ str_c(colnames_grid_prefix, .x, sep = "_")),
+      \(x) str_c(colnames_grid_prefix, x, sep = "_")
+    ),
     round = FALSE,
-    round_grid = 0, round_degrees = 6,
-    keep_original = TRUE) {
+    round_grid = 0,
+    round_degrees = 6,
+    keep_original = TRUE
+) {
 
   d_geodetic <- grid_to_geodetic({{ost}}, {{nord}}, crs_from, colnames_geodetic)
 
   if (keep_original) {
     d_geodetic[[colnames_geodetic[1]]] <-
-      ifelse(is.na(d_geodetic[[colnames_geodetic[1]]]), {{nord}}, d_geodetic[[colnames_geodetic[1]]])
+      ifelse(
+        is.na(d_geodetic[[colnames_geodetic[1]]]),
+        {{ nord }},
+        d_geodetic[[colnames_geodetic[1]]]
+      )
 
     d_geodetic[[colnames_geodetic[2]]] <-
-      ifelse(is.na(d_geodetic[[colnames_geodetic[2]]]), {{ost}}, d_geodetic[[colnames_geodetic[2]]])
+      ifelse(
+        is.na(d_geodetic[[colnames_geodetic[2]]]),
+        {{ ost }},
+        d_geodetic[[colnames_geodetic[2]]]
+      )
   }
 
   d_grid <- purrr::map2(
-    crs_to, colnames_grid,
-    ~ geodetic_to_grid(d_geodetic[,2], d_geodetic[,1], .x, .y))
+    crs_to,
+    colnames_grid,
+    \(x, y) geodetic_to_grid(d_geodetic[,2], d_geodetic[,1], x, y)
+  )
 
   d_out <- dplyr::bind_cols(d_geodetic, d_grid)
 
   if (keep_original) {
-    if (length(crs_from) == 1) crs_from <- rep(crs_from, nrow(d_out))
+    if (length(crs_from) == 1) {
+      crs_from <- rep(crs_from, nrow(d_out))
+    }
+
     for (i in seq_along(crs_to)) {
-      d_out[[colnames_grid[[i]][1]]] <- ifelse(crs_from == crs_to[i], nord, d_out[[colnames_grid[[i]][1]]])
-      d_out[[colnames_grid[[i]][2]]] <- ifelse(crs_from == crs_to[i], ost, d_out[[colnames_grid[[i]][2]]])
+      d_out[[colnames_grid[[i]][1]]] <-
+        ifelse(
+          crs_from == crs_to[i],
+          nord,
+          d_out[[colnames_grid[[i]][1]]]
+        )
+      d_out[[colnames_grid[[i]][2]]] <-
+        ifelse(
+          crs_from == crs_to[i],
+          ost,
+          d_out[[colnames_grid[[i]][2]]]
+        )
     }
   }
 
   if (round) {
-    d_out <- d_out %>%
+    d_out <- d_out |>
       dplyr::mutate(
-        dplyr::across(tidyselect::all_of(unlist(colnames_grid)), ~ round(., round_grid)),
-        dplyr::across(tidyselect::all_of(colnames_geodetic), ~ round(., round_degrees)))
+        dplyr::across(
+          tidyselect::all_of(unlist(colnames_grid)), \(x) round(x, round_grid)
+        ),
+        dplyr::across(
+          tidyselect::all_of(colnames_geodetic), \(x) round(x, round_degrees))
+      )
   }
 
   d_out
