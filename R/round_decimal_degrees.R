@@ -1,4 +1,13 @@
+#' Title
+#'
+#' @param x
+#' @param outformat
+#' @param digits
+#'
+#' @return
 #' @export
+#'
+#' @examples
 round_dd <- function(
     x,
     outformat = c("dm", "dms"),

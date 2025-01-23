@@ -1,9 +1,16 @@
 # https://github.com/kjgrahn/rubin
 
+#' Title
+#'
+#' @param x
+#'
+#' @return
 #' @export
+#'
+#' @examples
 rubin_width <- function(x) {
-    y <- as.character(x)
-    switch(y, "1" = 4, "10" = 3, "100" = 2, "1000" = 1)
+  y <- as.character(x)
+  switch(y, "1" = 4, "10" = 3, "100" = 2, "1000" = 1)
 }
 
 # I funktionerna nedan gäller:
@@ -25,7 +32,27 @@ rubin_width <- function(x) {
 # blir ju resultatet 0!
 # To do: check behavior if data input (.x, .y) contains NAs.
 
+
+#' Title
+#'
+#' @param .x
+#' @param .y
+#' @param .grid_size
+#' @param pad0
+#' @param space
+#' @param caps
+#' @param rubin
+#' @param rubin_num
+#' @param rubin_space
+#' @param y_min
+#' @param y_max
+#' @param x_min
+#' @param x_max
+#'
+#' @return
 #' @export
+#'
+#' @examples
 rt90_index <- function(
     .x,
     .y = NULL,
@@ -36,7 +63,7 @@ rt90_index <- function(
     y_max = 7700000,
     x_min = 1200000,
     x_max = 1900000
-    ) {
+) {
 
   # Allowed grid sizes
   gs <- c(100, 50, 25, 10, 5, 1) * 1000
@@ -58,86 +85,102 @@ rt90_index <- function(
 
   # Code breaks here if input variables contain NAs?
   if (base::any(base::nchar(as.integer(.y)) != 7)) {
-	  stop("y-coordinate must be given with 7 digits")
-	}
-	if (base::any(base::nchar(as.integer(.x)) != 7)) {
-	  stop("x-coordinate must be given with 7 digits")
-	}
+    stop("y-coordinate must be given with 7 digits")
+  }
+  if (base::any(base::nchar(as.integer(.x)) != 7)) {
+    stop("x-coordinate must be given with 7 digits")
+  }
 
-	.y <- dplyr::if_else(.y < y_min | .y >= y_max, NA, .y)
-	.x <- dplyr::if_else(.x < x_min | .x >= x_max, NA, .x)
+  .y <- dplyr::if_else(.y < y_min | .y >= y_max, NA, .y)
+  .x <- dplyr::if_else(.x < x_min | .x >= x_max, NA, .x)
 
-	# Storruta (50 x 50 km)
-	bk_50 <- stringr::str_c(
-	  floor(1 + (.y - y_min) / 50000),
-	  LETTERS[floor(1 + (.x - x_min) / 50000)]
-	)
+  # Storruta (50 x 50 km)
+  bk_50 <- stringr::str_c(
+    floor(1 + (.y - y_min) / 50000),
+    LETTERS[floor(1 + (.x - x_min) / 50000)]
+  )
 
-	bk_50 <- dplyr::case_when(
-	  pad0 == TRUE ~ stringr::str_pad(bk_50, width = 3, pad = 0),
-	  TRUE ~ bk_50)
+  bk_50 <- dplyr::case_when(
+    pad0 == TRUE ~ stringr::str_pad(bk_50, width = 3, pad = 0),
+    TRUE ~ bk_50
+  )
 
-	# Småruta (5 x 5 km)
-	bk_5 <- stringr::str_c(
-	  floor((.y %% 50000) / 5000),
-	  letters[floor(1 + (.x %% 50000) / 5000)]
-	)
+  # Småruta (5 x 5 km)
+  bk_5 <- stringr::str_c(
+    floor((.y %% 50000) / 5000),
+    letters[floor(1 + (.x %% 50000) / 5000)]
+  )
 
-	bk_5 <- dplyr::case_when(
-	  caps == TRUE ~ toupper(bk_5),
-	  TRUE ~ bk_5)
+  bk_5 <- dplyr::case_when(
+    caps == TRUE ~ toupper(bk_5),
+    TRUE ~ bk_5
+  )
 
-	# RUBIN-koordinater
-	if (rubin == FALSE) {
-		rubin_str <- ""
-	} else {
-		# Beräkning av RUBIN-kod
-		# nr & er avser avstånd från södra resp. västra kanten av ekorutan i antal METER
-		# y - (5000 * floor((y / 5000)))
-		nrubin <- stringr::str_pad(
-		  floor(.y %% 5000 / rubin_num),
-		  width = rubin_width(rubin_num),
-		  pad = "0")
+  # RUBIN-koordinater
+  if (rubin == FALSE) {
+    rubin_str <- ""
+  } else {
+    # Beräkning av RUBIN-kod
+    # nr & er avser avstånd från södra resp. västra kanten av ekorutan i antal METER
+    # y - (5000 * floor((y / 5000)))
+    nrubin <- stringr::str_pad(
+      floor(.y %% 5000 / rubin_num),
+      width = rubin_width(rubin_num),
+      pad = "0"
+    )
 
-		erubin <- stringr::str_pad(
-		  floor(.x %% 5000 / rubin_num),
-		  width = rubin_width(rubin_num),
-		  pad = "0")
+    erubin <- stringr::str_pad(
+      floor(.x %% 5000 / rubin_num),
+      width = rubin_width(rubin_num),
+      pad = "0"
+    )
 
-		if (rubin_space == FALSE) {
-			rubin_str <- stringr::str_c(nrubin, erubin)
-		} else {
-			rubin_str <- stringr::str_c(" ", nrubin, erubin)
-		}
-	}
+    if (rubin_space == FALSE) {
+      rubin_str <- stringr::str_c(nrubin, erubin)
+    } else {
+      rubin_str <- stringr::str_c(" ", nrubin, erubin)
+    }
+  }
 
-	dplyr::case_when(
-	  .grid_size == 1000 ~
-	    stringr::str_c(
-	      bk_50, bk_5,
-	      stringr::str_c(
-	        floor((.y %% 5000) / 1000),
-	        floor((.x %% 5000) / 1000)
-	      ),
-	      sep = sep),
-	  .grid_size == 5000 ~
-	    stringr::str_c(
-	      bk_50, sep, bk_5, rubin_str
-	    ),
-	  .grid_size == 25000 ~
-	    stringr::str_c(
-	      bk_50,
-	      stringr::str_c(
-	        dplyr::if_else(.y %% 50000 / 50000 < 0.5, "S", "N"),
-	        dplyr::if_else(.x %% 50000 / 50000 < 0.5, "V", "O"),
-	        sep = ""),
-	      sep = sep),
-	  .grid_size == 50000 ~ bk_50,
-	  TRUE ~ NA
-	)
+  dplyr::case_when(
+    .grid_size == 1000 ~
+      stringr::str_c(
+        bk_50, bk_5,
+        stringr::str_c(
+          floor((.y %% 5000) / 1000),
+          floor((.x %% 5000) / 1000)
+        ),
+        sep = sep
+      ),
+    .grid_size == 5000 ~
+      stringr::str_c(
+        bk_50, sep, bk_5, rubin_str
+      ),
+    .grid_size == 25000 ~
+      stringr::str_c(
+        bk_50,
+        stringr::str_c(
+          dplyr::if_else(.y %% 50000 / 50000 < 0.5, "S", "N"),
+          dplyr::if_else(.x %% 50000 / 50000 < 0.5, "V", "O"),
+          sep = ""),
+        sep = sep
+      ),
+    .grid_size == 50000 ~ bk_50,
+    TRUE ~ NA
+  )
 }
 
+#' Title
+#'
+#' @param .data
+#' @param .grid_size
+#' @param .prefix
+#' @param ...
+#'
+#' @return
 #' @export
+#'
+#' @examples
 add_rt90_index <- function(
     .data,
     .grid_size = c(50000, 25000, 5000),
@@ -183,31 +226,39 @@ add_rt90_index <- function(
 # Determine grid size from length of input?
 # x: indexruta, längd 5 tecken t.ex. 09E2g
 
+#' Title
+#'
+#' @param grid
+#' @param .grid_size
+#'
+#' @return
 #' @export
+#'
+#' @examples
 index_rt90 <- function(grid, .grid_size = 5000) {
 
-	n_stor <- as.numeric(substr(grid, 1, 2))
-	e_stor <- substr(grid, 3, 3)
+  n_stor <- as.numeric(substr(grid, 1, 2))
+  e_stor <- substr(grid, 3, 3)
 
-	# Northing: X = (storrutaX * 50000) + 6100000 + (5000 * bladX)
-	# Easting: y = ((storrutaYs position i alfabetet - 1) * 50000) + 1200000 + (5000 * (bladYs position i alfabetet -1))
+  # Northing: X = (storrutaX * 50000) + 6100000 + (5000 * bladX)
+  # Easting: y = ((storrutaYs position i alfabetet - 1) * 50000) + 1200000 + (5000 * (bladYs position i alfabetet -1))
 
-	if (.grid_size == 5000) {
-	  n_ekon <- as.numeric(substr(grid, 4, 4))
-	  # eekon must be supplied as lower case
-	  e_ekon <- tolower(substr(grid, 5, 5))
-	  n_coord <- ((n_stor - 1) * 50000) + (n_ekon * 5000) + 6100000
-	  e_coord <- as.numeric(
-	    (((gtools::asc(e_stor) - 64) - 1) * 50000) +
-	      (((gtools::asc(e_ekon) - 96) - 1) * 5000) + 1200000
-	  )
+  if (.grid_size == 5000) {
+    n_ekon <- as.numeric(substr(grid, 4, 4))
+    # eekon must be supplied as lower case
+    e_ekon <- tolower(substr(grid, 5, 5))
+    n_coord <- ((n_stor - 1) * 50000) + (n_ekon * 5000) + 6100000
+    e_coord <- as.numeric(
+      (((gtools::asc(e_stor) - 64) - 1) * 50000) +
+        (((gtools::asc(e_ekon) - 96) - 1) * 5000) + 1200000
+    )
 
-	} else if (.grid_size == 50000) {
-	  n_coord <- ((n_stor - 1) * 50000) + 6100000
-	  e_coord <- (((gtools::asc(e_stor) - 64) - 1) * 50000) + 1200000
-	}
+  } else if (.grid_size == 50000) {
+    n_coord <- ((n_stor - 1) * 50000) + 6100000
+    e_coord <- (((gtools::asc(e_stor) - 64) - 1) * 50000) + 1200000
+  }
 
-	data.frame(
-	  northing = n_coord,
-	  easting = e_coord)
+  data.frame(
+    northing = n_coord,
+    easting = e_coord)
 }

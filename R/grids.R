@@ -3,33 +3,46 @@
 
 # grid_polygons generates a grid
 # requires: sf
+
+#' Title
+#'
+#' @param x_range
+#' @param y_range
+#' @param delta_x
+#' @param delta_y
+#' @param crs
+#' @param direction
+#'
+#' @return
 #' @export
+#'
+#' @examples
 grid_polygons <- function(
     x_range, y_range,
     delta_x, delta_y,
     crs,
     direction = "clockwise") {
 
-	n_x <- (max(x_range) - min(x_range)) / delta_x
-	n_y <- (max(y_range) - min(y_range)) / delta_y
+  n_x <- (max(x_range) - min(x_range)) / delta_x
+  n_y <- (max(y_range) - min(y_range)) / delta_y
 
-	grid_corners <- base::expand.grid(
-		x = base::seq(min(x_range), by = delta_x, length.out = n_x),
-		y = base::seq(min(y_range), by = delta_y, length.out = n_y)
-	)
+  grid_corners <- base::expand.grid(
+    x = base::seq(min(x_range), by = delta_x, length.out = n_x),
+    y = base::seq(min(y_range), by = delta_y, length.out = n_y)
+  )
 
-	m <- purrr::map2(
-	  grid_corners$x,
-	  grid_corners$y,
-	  \(x,y) {
-	    grid_cell(
-	      x, y,
-	      delta_x = delta_x, delta_y = delta_y,
-	      direction = direction)
-	  }
-	)
+  m <- purrr::map2(
+    grid_corners$x,
+    grid_corners$y,
+    \(x,y) {
+      grid_cell(
+        x, y,
+        delta_x = delta_x, delta_y = delta_y,
+        direction = direction)
+    }
+  )
 
-	sf::st_sfc(m, crs = crs)
+  sf::st_sfc(m, crs = crs)
 }
 
 # Examples:
@@ -50,7 +63,19 @@ grid_polygons <- function(
 #
 # lengths(g_3021)
 
+
+#' Title
+#'
+#' @param x_min
+#' @param y_min
+#' @param delta_x
+#' @param delta_y
+#' @param direction
+#'
+#' @return
 #' @export
+#'
+#' @examples
 grid_cell <- function(
     x_min, y_min,
     delta_x, delta_y,
@@ -86,7 +111,20 @@ grid_cell <- function(
 # grid_cell(1300000, 6100000, 50000, 50000, direction = "clockwise")
 # grid_cell(1300000, 6100000, 50000, 50000, direction = "counter-clockwise")
 
+
+#' Title
+#'
+#' @param delta_x
+#' @param delta_y
+#' @param min_x
+#' @param max_x
+#' @param min_y
+#' @param max_y
+#'
+#' @return
 #' @export
+#'
+#' @examples
 grid_parms <- function(
     delta_x, delta_y,
     min_x = 200000, max_x = 1000000,
@@ -107,7 +145,17 @@ grid_parms <- function(
 # .x = numeric coordinate in e.g. EPSG:3006 or EPSG:3847, EPSG:3021
 # g = grid size in meters, rounds to nearest g
 # Is this a "round down"?
+
+#' Title
+#'
+#' @param .x
+#' @param g
+#' @param centroid
+#'
+#' @return
 #' @export
+#'
+#' @examples
 round_coords <- function(.x, g, centroid = FALSE) {
   .x <- .x - (.x %% g)
   if (centroid) .x <- .x + g / 2
@@ -119,22 +167,39 @@ round_coords <- function(.x, g, centroid = FALSE) {
 #         ~ round_coords(c(734422, 6633780), g = .x, centroid = FALSE) %>%
 #           setNames(c("Northing", "Easting")))
 
+
+#' Title
+#'
+#' @param .x
+#' @param .size
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_bbox_round <- function(.x, .size) {
   if (class(.x)[1] == "sf") {
     .x <- sf::st_bbox(.x)
   }
   if (class(.x)[1] == "bbox") {
     .x[1:4] <- c(
-      round_choose(.x$xmin, .size, "down"),
-      round_choose(.x$ymin, .size, "down"),
-      round_choose(.x$xmax, .size, "up"),
-      round_choose(.x$ymax, .size, "up"))
+      eagles::round_choose(.x$xmin, .size, "down"),
+      eagles::round_choose(.x$ymin, .size, "down"),
+      eagles::round_choose(.x$xmax, .size, "up"),
+      eagles::round_choose(.x$ymax, .size, "up"))
   }
   .x
 }
 
+#' Title
+#'
+#' @param .data
+#' @param .grp
+#'
+#' @return
 #' @export
+#'
+#' @examples
 extract_lower_left <- function(.data, .grp = L2) {
   .data |>
     sf::st_coordinates() |>
@@ -146,7 +211,15 @@ extract_lower_left <- function(.data, .grp = L2) {
     dplyr::rename_with(tolower)
 }
 
+#' Title
+#'
+#' @param .data
+#' @param .grp
+#'
+#' @return
 #' @export
+#'
+#' @examples
 extract_lower_left_2 <- function(.data, .grp = ruta) {
   .data |>
     sf::st_cast("POINT") |>
@@ -155,27 +228,41 @@ extract_lower_left_2 <- function(.data, .grp = ruta) {
     dplyr::ungroup()
 }
 
+#' Title
+#'
+#' @param data
+#' @param filter_col
+#' @param filter_value
+#' @param grid_size
+#' @param .fn
+#'
+#' @return
 #' @export
+#'
+#' @examples
 grid_filter <- function(
     data,
     filter_col,
     filter_value,
     grid_size,
-    .fn = eagles::sweref99_index) {
+    .fn = sweref99_index,
+    ...
+) {
 
   sf::st_make_grid(
     data |>
-      dplyr::filter( {{ filter_col}} == filter_value) |>
+      dplyr::filter( {{ filter_col }} == filter_value) |>
       sf::st_bbox() |>
-      eagles::st_bbox_round(.size = grid_size),
+      st_bbox_round(.size = grid_size),
     cellsize = grid_size
   ) |>
     sf::st_sf(geometry = _) |>
     {(\(.) dplyr::mutate(
       .,
-      ruta = .fn(sf::st_centroid(x = .), .grid_size = grid_size))
+      ruta = .fn(sf::st_centroid(x = .), .grid_size = grid_size, ...)
+    )
     )}() |>
-    eagles::st_filter(
+    st_filter(
       sf::st_union(
         data |>
           dplyr::filter( {{ filter_col }} == filter_value)
@@ -183,7 +270,15 @@ grid_filter <- function(
     )
 }
 
+#' Title
+#'
+#' @param file_name
+#' @param file_list
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gdaltindex <- function(file_name, file_list) {
 
   file_conn <- base::file(glue::glue("{file_name}.txt"))
@@ -198,7 +293,18 @@ gdaltindex <- function(file_name, file_list) {
   base::unlink(glue::glue("{file_name}.txt"))
 }
 
+#' Title
+#'
+#' @param map_frame_x
+#' @param map_frame_y
+#' @param map_scale
+#' @param overlap
+#' @param round
+#'
+#' @return
 #' @export
+#'
+#' @examples
 layout_grid_size <- function(
     map_frame_x = 37.9,
     map_frame_y = 27.2,
@@ -227,6 +333,17 @@ layout_grid_size <- function(
   )
 }
 
+#' Title
+#'
+#' @param .data
+#' @param row_offset
+#' @param col_offset
+#' @param page_variable
+#'
+#' @return
+#' @export
+#'
+#' @examples
 find_page_number <- function(.data, row_offset, col_offset, page_variable) {
   base::with(.data, {
     inds <- base::match(
@@ -237,13 +354,25 @@ find_page_number <- function(.data, row_offset, col_offset, page_variable) {
   })
 }
 
+#' Title
+#'
+#' @param map_grid
+#' @param direction
+#' @param page_variable
+#' @param sep
+#' @param add_neighbours
+#'
+#' @return
 #' @export
+#'
+#' @examples
 add_grid_neighbours <- function(
     map_grid,
     direction = c("s-n", "n-s"),
     page_variable = "PageNumber",
     sep = "_",
-    add_neighbours = TRUE) {
+    add_neighbours = TRUE
+) {
 
   direction <- base::match.arg(direction)
 
@@ -255,23 +384,39 @@ add_grid_neighbours <- function(
         base::seq_len(base::nrow(map_grid)),
         \(x) sf::st_bbox(map_grid[x,])[1:4]
       ),
-      dx = xmax - xmin,
-      dy = ymax - ymin
+      dx = .data$xmax - .data$xmin,
+      dy = .data$ymax - .data$ymin
     )
 
   # Calculate grid rows and columns
   if (direction == "s-n") {
     map_grid <- map_grid |>
       dplyr::mutate(
-        grid_row = base::round( (((ymin - min(ymin)) / dy) + 1), 0),
-        grid_column = base::round( (((xmin - min(xmin)) / dx) + 1), 0)
+        grid_row = base::round(
+          (((.data$ymin - min(.data$ymin)) / .data$dy) + 1),
+          0
+        ),
+        grid_column = base::round(
+          (((.data$xmin - min(.data$xmin)) / .data$dx) + 1),
+          0
+        )
       )
   } else if (direction == "n-s") {
     map_grid <- map_grid |>
       dplyr::mutate(
-        grid_row = base::round( (((max(ymax) - ymax) / dy) + 1), 0),
-        grid_column = base::round( (((xmin - min(xmin)) / dx) + 1), 0)) |>
-      dplyr::arrange(grid_row, grid_column)
+        grid_row = base::round(
+          (((max(.data$ymax) - .data$ymax) / .data$dy) + 1),
+          0
+        ),
+        grid_column = base::round(
+          (((.data$xmin - min(.data$xmin)) / .data$dx) + 1),
+          0
+        )
+      ) |>
+      dplyr::arrange(
+        .data$grid_row,
+        .data$grid_column
+      )
   }
 
   # Add row number variable
@@ -309,7 +454,10 @@ add_grid_neighbours <- function(
       }()
 
     map_grid <- map_grid |>
-      dplyr::relocate(geometry, .after = tidyselect::last_col())
+      dplyr::relocate(
+        geometry,
+        .after = tidyselect::last_col()
+      )
     # attr(map_grid, "sf_column")
 
     # Convert numeric values to text, and replace NA with "empty string"

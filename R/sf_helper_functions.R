@@ -1,5 +1,16 @@
 # Source: https://github.com/r-spatial/sf/issues/231
+
+#' Title
+#'
+#' @param x
+#' @param geometry
+#' @param names
+#' @param drop_geometry
+#'
+#' @return
 #' @export
+#'
+#' @examples
 sfc_as_cols <- function(x, geometry, names = c("x","y"), drop_geometry = FALSE) {
   if (missing(geometry)) {
     geometry <- sf::st_geometry(x)
@@ -21,14 +32,35 @@ sfc_as_cols <- function(x, geometry, names = c("x","y"), drop_geometry = FALSE) 
   x
 }
 
+#' Title
+#'
+#' @param .x
+#' @param coords
+#' @param crs
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_add_geom_column <- function(.x, coords, crs = 3006) {
   .x |>
     sf::st_as_sf(coords = {{ coords }}, crs = crs) |>
     sf::st_geometry()
 }
 
+
+#' Title
+#'
+#' @param .x
+#' @param .g
+#' @param .g_names
+#' @param centroid
+#' @param crs
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_add_geom_column_round <- function(
     .x, .g, .g_names,
     centroid = TRUE,
@@ -57,7 +89,14 @@ st_add_geom_column_round <- function(
   .x
 }
 
+#' Title
+#'
+#' @param .x
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_extract_pt_coords <- function (.x) {
   # Extract coordinates if input is an sf-object
   if (class(.x)[1] == "sf") {
@@ -76,7 +115,16 @@ st_extract_pt_coords <- function (.x) {
 
 # Todo: check function in rmapshaper, e.g. ms_erase and ms_dissolve
 # Note check the erase function rmapshaper::ms_erase
+
+#' Title
+#'
+#' @param x
+#' @param y
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_erase <- function(x, y) {
   sf::st_difference(x, sf::st_union(sf::st_combine(y)))
 }
@@ -109,7 +157,16 @@ st_union_full <- function(x, y) {
   sf::st_as_sf(dplyr::bind_rows(op1, op2, op3))
 }
 
+#' Title
+#'
+#' @param .x
+#' @param .y
+#' @param .pred
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_filter = function(.x, .y, .pred = sf::st_intersects) {
   # this is equal to .x[.y, op = st_intersects]
   # check that dplyr is loaded, then
@@ -122,7 +179,17 @@ st_filter = function(.x, .y, .pred = sf::st_intersects) {
 # Would be good to use dplyr::join_by with {{ .join_columns }}
 # rather than by argument, but can not get this to work:
 # Error: Expressions must use one of:
+
+#' Title
+#'
+#' @param .data
+#' @param .join_data
+#' @param .join_columns
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_join_n <- function(
     .data,
     .join_data,
@@ -145,7 +212,15 @@ st_join_n <- function(
     dplyr::left_join(.x, by = .join_columns)
 }
 
+#' Title
+#'
+#' @param .data
+#' @param .join_data
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_join_n_loop <- function(.data, .join_data) {
   for (i in seq_along(.join_data)) {
     .data <- .data |> sf::st_join(.join_data[[i]])
@@ -153,7 +228,17 @@ st_join_n_loop <- function(.data, .join_data) {
   .data
 }
 
+#' Title
+#'
+#' @param polygons
+#' @param points
+#' @param fn
+#' @param name
+#'
+#' @return
 #' @export
+#'
+#' @examples
 count_points_in_polygons <- function(
     polygons,
     points,
@@ -164,7 +249,14 @@ count_points_in_polygons <- function(
     {\(.) dplyr::mutate(., {{ name }} := base::lengths(fn(., points)))}()
 }
 
+#' Title
+#'
+#' @param x
+#'
+#' @return
 #' @export
+#'
+#' @examples
 list_layers <- function(x) {
   tibble::tibble(
     name = x$name,
@@ -174,89 +266,29 @@ list_layers <- function(x) {
     fields = x$fields)
 }
 
-#' @export
 # Note: st_layers does not include feature dataset for FileGDBs
+#' Title
+#'
+#' @param .x
+#'
+#' @return
+#' @export
+#'
+#' @examples
 st_layers_tibble <- function(.x) {
   sf::st_layers(.x) |>
     list_layers()
 }
 
+#' Title
+#'
+#' @param x
+#' @param to
+#'
+#' @return
 #' @export
-gpkg_contents <- function(.x, include_bbox = TRUE) {
-
-  x <- st_layers_tibble(.x)
-
-  con <- DBI::dbConnect(RSQLite::SQLite(), .x)
-
-  x_contents <- DBI::dbGetQuery(
-    con, 'SELECT * FROM gpkg_contents'
-  ) |>
-    tibble::as_tibble() |>
-    dplyr::mutate(
-      last_change = readr::parse_datetime(last_change)
-    )
-
-  DBI::dbDisconnect(con)
-
-  x <- x |>
-    dplyr::left_join(
-      x_contents,
-      dplyr::join_by(name == table_name)
-    ) |>
-    dplyr::arrange(name)
-
-  x <- x |>
-    dplyr::select(-driver, -data_type, -description, -identifier)
-
-  if (!include_bbox) {
-    x <- x |> dplyr::select(-c(min_x:max_y))
-  }
-
-  x
-
-}
-
-# Edit epsg (SRID) to show correctly, st_write can not write the epsg (SRID) because this is apparently done in GDAL
-# and there's not a 1:1 relationship between epsg (SRID) and the proj4string. The proj4string is written correctly to the gpkg,
-# but SRID is not.
-# Check two tables; gpkg_spatial_ref_sys and gpkg_geometry_columns, the SRSID must exist in gpkg_spatial_ref_sys before gpkg_geometry_columns can be updated
-# use sqlite-builtin function to set correct SRID and proj4string:
-# Generates error message:
-# "UNIQUE constraint failed: gpkg_spatial_ref_sys.srs_id"
-# but executes as expected anyway....
-# Check EPSG (SRID) & proj4string: both should now be correct, epsg (SRID) should not be NA
-# Also try load in QGIS: check BOTH Layer properties from the Browser and Database > DB Manager
-# Try to load in ArcGIS
-
-# See more info:
-# https://github.com/r-spatial/sf/issues/786
-
-# Check if value already exists?
-
-#' @export
-set_epsg_gpkg <- function(dsn, layer, epsg = 3006, delete_srid = NULL) {
-  gdalUtils::ogrinfo(
-    dsn, dialect = "sqlite",
-    sql = glue::glue("SELECT gpkgInsertEpsgSRID({epsg})")
-  )
-
-  gdalUtils::ogrinfo(
-    dsn, dialect = "sqlite",
-    sql = glue::glue("UPDATE gpkg_geometry_columns SET srs_id = {epsg} WHERE table_name LIKE '{layer}%';")
-  )
-
-  gdalUtils::ogrinfo(
-    dsn, dialect = "sqlite",
-    sql = glue::glue("UPDATE gpkg_contents SET srs_id = {epsg} WHERE table_name LIKE '{layer}%';")
-  )
-
-  if (!is.null(delete_srid)) {
-    # Delete SRSID posts created "by" st_write [or rather GDAL]
-    gdalUtils::ogrinfo(dsn, dialect = "sqlite", sql = glue::glue("DELETE FROM gpkg_spatial_ref_sys WHERE srs_id LIKE {delete_srid}%;"))
-  }
-}
-
-#' @export
+#'
+#' @examples
 stdh_cast_substring <- function(x, to = "MULTILINESTRING") {
 
   ggg <- sf::st_geometry(x)
@@ -295,7 +327,16 @@ stdh_cast_substring <- function(x, to = "MULTILINESTRING") {
   return(endgeom)
 }
 
+#' Title
+#'
+#' @param .data
+#' @param .crs
+#' @param .area_unit
+#'
+#' @return
 #' @export
+#'
+#' @examples
 split_holes <- function(.data, .crs = 3006, .area_unit = "km^2") {
   # Extract coordinates
   out <- sf::st_coordinates(.data) |>

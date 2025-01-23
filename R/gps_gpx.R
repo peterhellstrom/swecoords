@@ -1,11 +1,26 @@
-# Extensions ----
+#' Title
+#'
+#' @param .x
+#' @param extension
+#' @param index
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gpx_categ_n <- function(.x, extension = "gpxx_WaypointExtension", index) {
   word_list = stringr::str_split(.x[[extension]], '\\s+')
   gsub(x = sapply(word_list, "[", index), pattern = "</gpxx:Category>", replacement = "")
 }
 
+#' Title
+#'
+#' @param .x
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gpx_categ <- function(.x) {
   .x %>%
     dplyr::mutate(
@@ -31,7 +46,18 @@ gpx_categ <- function(.x) {
 # custom gpx-creation functions
 
 ## Creates a track point list ----
+
+#' Title
+#'
+#' @param lat
+#' @param lon
+#' @param ele
+#' @param time
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gpx_trkpt <- function(lat, lon, ele = NULL, time = NULL){
   trkpt <- stringr::str_c(
     "<trkpt lat=", glue::double_quote(lat), " lon=", glue::double_quote(lon), ">"
@@ -44,7 +70,16 @@ gpx_trkpt <- function(lat, lon, ele = NULL, time = NULL){
 }
 
 ## creates track ----
+
+#' Title
+#'
+#' @param df
+#' @param name
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gpx_trk <- function(df, name = NULL) {
   trk <- "<trk>"
   if (!is.null(name)) trk <- c(trk, stringr::str_c("<name>", name, "</name>"))
@@ -55,7 +90,15 @@ gpx_trk <- function(df, name = NULL) {
 }
 
 ## creates the start of gpx file ----
+
+#' Title
+#'
+#' @param creator
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gpx_header <- function(
     creator = "R - pep"){
 
@@ -71,13 +114,27 @@ gpx_header <- function(
 }
 
 ## creates the end of a gpx file ----
+
+#' Title
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gpx_end <- function(){
   return("</gpx>")
 }
 
 # xml2 ----
+
+#' Title
+#'
+#' @param creator
+#'
+#' @return
 #' @export
+#'
+#' @examples
 add_gpx <-  function(
     creator = "R - pep") {
 
@@ -93,13 +150,25 @@ add_gpx <-  function(
     "xmlns:trp" = "http://www.garmin.com/xmlschemas/TripExtensions/v1")
 }
 
+#' Title
+#'
+#' @param parent
+#' @param df
+#' @param name
+#' @param desc
+#' @param display_color
+#'
+#' @return
 #' @export
+#'
+#' @examples
 add_trk <- function(
     parent,
     df,
     name = NULL,
     desc = NULL,
-    display_color = "Red") {
+    display_color = "Red"
+    ) {
 
   # Add main track node
   trk_node <- xml2::xml_add_child(parent, "trk")
@@ -139,7 +208,18 @@ add_trk <- function(
   return(invisible(parent))
 }
 
+#' Title
+#'
+#' @param parent
+#' @param df
+#' @param name
+#' @param desc
+#' @param display_color
+#'
+#' @return
 #' @export
+#'
+#' @examples
 add_rte <- function(
     parent,
     df,

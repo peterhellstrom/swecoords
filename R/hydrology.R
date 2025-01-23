@@ -11,7 +11,17 @@
 # Returnerar hela den del av huvudavrinningsområdet som ligger ovanför
 # angivet AROID.
 
+
+#' Title
+#'
+#' @param aroid
+#' @param direction
+#' @param data
+#'
+#' @return
 #' @export
+#'
+#' @examples
 daro_flode <- function(aroid, direction = c("down", "up"), data = daro) {
 
   direction <- match.arg(direction)
@@ -46,7 +56,16 @@ daro_flode <- function(aroid, direction = c("down", "up"), data = daro) {
 # OBS! Flödesordningen egentligen avsedd att använda nedströms,
 # nu blir den ju lite "missvisande" vid sökning uppströms.
 
+#' Title
+#'
+#' @param data
+#' @param index
+#' @param add_flow_id
+#'
+#' @return
 #' @export
+#'
+#' @examples
 daro_flode_sf <- function(data, index, add_flow_id = FALSE) {
 
   out <- data |>
@@ -72,7 +91,16 @@ daro_flode_sf <- function(data, index, add_flow_id = FALSE) {
 # OBS! ger INTE överlappande avrinningsområden
 # (jmf med skiktet SVARO i SMHI i Svenskt Vattenarkiv), eftersom de
 # överlappande polygonerna är tillgängliga i just SVARO.
+
+#' Title
+#'
+#' @param .x
+#' @param .field
+#'
+#' @return
 #' @export
+#'
+#' @examples
 aroid_group <- function(.x, .field) {
 
   x <- purrr::map_dfr(
@@ -82,7 +110,10 @@ aroid_group <- function(.x, .field) {
   )
 
   x <- x |>
-    dplyr::inner_join(.x, dplyr::join_by(aroid_grp == aroid))
+    dplyr::inner_join(
+      .x,
+      dplyr::join_by(aroid_grp == aroid)
+    )
 
   x_s <- x |>
     dplyr::group_by(AROID) |>
@@ -105,13 +136,26 @@ aroid_group <- function(.x, .field) {
 # dissolve & join-fält är hårdkodat här!
 # Var tidigare namn, men det funkar ju inte om två olika områden
 # har samma namn, ändrade till grans_aroid
+
+#' Title
+#'
+#' @param .x
+#' @param .x_attr
+#' @param .field
+#' @param .attr_field
+#'
+#' @return
 #' @export
-aroid_group_dissolve <- function(.x, .x_attr, .field = aroid_grp, .attr_field = aroid) {
+#'
+#' @examples
+aroid_group_dissolve <- function(
+    .x, .x_attr, .field = aroid_grp, .attr_field = aroid
+) {
   .x |>
     dplyr::group_by( {{ .field }}) |>
     dplyr::summarize() |>
     dplyr::inner_join(
-       .x_attr, dplyr::join_by( {{ .field }} == {{ .attr_field }})
+      .x_attr, dplyr::join_by( {{ .field }} == {{ .attr_field }})
     ) |>
     # dplyr::arrange(grupp, ordn) |>
     { \(.) dplyr::mutate(., area = sf::st_area(.)) }() |>
@@ -134,7 +178,19 @@ aroid_group_dissolve <- function(.x, .x_attr, .field = aroid_grp, .attr_field = 
 # nngeo::remove_holes-funktionen lyckas inte ta bort hål/slivers
 # som tangerar kanterna på polygonerna. Samma gäller för sfheaders::sf_remove_holes
 # som annars är en snabbare funktion.
+
+#' Title
+#'
+#' @param havso
+#' @param daro
+#' @param hid
+#' @param union
+#' @param union_method
+#'
+#' @return
 #' @export
+#'
+#' @examples
 havso_combine_by_id <- function(
     havso, daro, hid,
     union = TRUE,

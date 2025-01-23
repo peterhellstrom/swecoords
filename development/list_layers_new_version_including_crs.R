@@ -35,7 +35,7 @@ list_layers <- function(path) {
 }
 
 # Examples ----
-p_gdb <- "W:/projects/data/Raptor_Monitoring.gdb"
+p_gdb <- Sys.getenv("gdb_raptor_monitoring")
 
 list_layers(p_gdb)
 
@@ -44,6 +44,6 @@ list_layers(p_gdb) |>
 
 swecoords::list_layers(sf::st_layers(p_gdb))
 
-p_gpkg <- "W:/projects/data/havsorn.gpkg"
+p_gpkg <- Sys.getenv("gpkg_havsorn")
 list_layers(p_gpkg)
 swecoords::gpkg_contents(p_gpkg)

@@ -17,7 +17,20 @@
 # The user can select two output formats:
 # "short" returns only the rotated coordinates, "long" returns a list with angle, rotation matrix, unrotated and rotated coordinates.
 
+
+#' Title
+#'
+#' @param x
+#' @param y
+#' @param angle
+#' @param x.origo
+#' @param y.origo
+#' @param output
+#'
+#' @return
 #' @export
+#'
+#' @examples
 rotate_pt <- function(x, y, angle, x.origo = NULL, y.origo = NULL, output = "short") {
 
 	# Convert the rotation angle from degrees to radians
@@ -56,7 +69,20 @@ rotate_pt <- function(x, y, angle, x.origo = NULL, y.origo = NULL, output = "sho
 
 # Rotate many points with the same origo/coordinate system and angle.
 # This functions calls rotate_pt, and repeats the rotation procedure.
+
+#' Title
+#'
+#' @param x
+#' @param y
+#' @param angle
+#' @param x.origo
+#' @param y.origo
+#' @param output
+#'
+#' @return
 #' @export
+#'
+#' @examples
 rotate_pts <- function(x, y, angle, x.origo = NULL, y.origo = NULL, output = "short") {
 
   if (length(x) != length(y)) stop("x & y of unequal length")

@@ -15,7 +15,7 @@ Imports:
     dplyr (>= 1.1.4),
     geosphere (>= 1.5.20),
     glue (>= 1.8.0),
-    igraph (>= 2.1.2),
+    igraph (>= 2.1.3),
     leafem (>= 0.2.3),
     leaflet (>= 2.2.2),
     leaflet.extras (>= 2.0.1),
@@ -34,7 +34,7 @@ Imports:
     tidyselect (>= 1.2.1),
     unglue (>= 0.1.0),
     units (>= 0.8.5),
-    XML (>= 3.99.0.17),
+    XML (>= 3.99.0.18),
     xml2 (>= 1.3.6)
 Suggests: 
     ggplot2,

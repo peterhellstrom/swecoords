@@ -2,7 +2,6 @@
 # devtools::install_github("r-lib/devtools")
 # devtools::install_github("r-lib/usethis")
 
-# can be added to .Rprofile startup file
 library(devtools)
 
 # Create project ----
@@ -120,8 +119,8 @@ library(swecoords)
 utils::sessionInfo()
 sessioninfo::session_info()
 
-## Data sets ----
-usethis::use_data_raw()
+## Test data sets ----
+# usethis::use_data_raw()
 
 storrutor
 ekorutor
@@ -134,7 +133,7 @@ storrutor |>
     coords = c("easting", "northing"),
     crs = 3021
   ) |>
-  mapview::mapview()
+  mapview::mapview(layer.name = "Storrutor 50km RT90 2.5 gon V")
 
 grid_rt_90 <- function(.data, grid_size, crs = 3021) {
   .data |>
@@ -153,5 +152,11 @@ grid_rt_90(storrutor, 50000) |>
 grid_rt_90(ekorutor, 5000) |>
   mapview::mapview()
 
+## Test functions ----
 lm_basemaps()
 swe_tiles(tile_providers = tms_layers_data)
+
+devtools::load_all()
+test_gpkg <- system.file("gpkg", "nc.gpkg", package = "sf")
+file.exists(test_gpkg)
+gpkg_contents(test_gpkg)

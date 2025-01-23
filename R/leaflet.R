@@ -490,7 +490,7 @@ swe_tiles <- function(
     m <- m |>
       leaflet::addTiles(
         urlTemplate = tile_providers[[i]]$urlTemplate,
-        options = base::do.call("tileOptions", tile_providers[[i]]$options),
+        options = base::do.call("leaflet::tileOptions", tile_providers[[i]]$options),
         group = tile_providers[[i]]$group
       )
   }
@@ -528,16 +528,24 @@ simpleLeaflet <- function(long, lat, popup, fitbounds = TRUE, zoom = 13) {
   d_coords <- sf::st_coordinates(d)
 
   m <- swe_tiles(tile_providers = tms_layers_data) |>
-    leaflet::setView(mean(d_coords[, 1]), mean(d_coords[, 2]), zoom) |>
-    leaflet::addMarkers(long, lat, popup = popup)
-    if (fitbounds) {
-      m <- m |>
-        leaflet::fitBounds(
-          lng1 = min(d_coords[, 1]),
-          lat1 = min(d_coords[, 2]),
-          lng2 = max(d_coords[, 1]),
-          lat2 = max(d_coords[, 2])
-        )
-    }
-    m
+    leaflet::setView(
+      mean(d_coords[, 1]),
+      mean(d_coords[, 2]),
+      zoom
+    ) |>
+    leaflet::addMarkers(
+      long,
+      lat,
+      popup = popup
+    )
+  if (fitbounds) {
+    m <- m |>
+      leaflet::fitBounds(
+        lng1 = min(d_coords[, 1]),
+        lat1 = min(d_coords[, 2]),
+        lng2 = max(d_coords[, 1]),
+        lat2 = max(d_coords[, 2])
+      )
   }
+  m
+}

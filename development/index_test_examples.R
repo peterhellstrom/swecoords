@@ -1,5 +1,10 @@
+library(tidyverse)
+library(sf)
+
+devtools::load_all()
+
 places <- sf::read_sf(
-  "E:/Maps/Ortnamn/ortnamn_sverige.gpkg",
+  "G:/Ortnamn/ortnamn_sverige.gpkg",
   query = "SELECT * FROM ortnamn LIMIT 2500;"
 )
 
@@ -10,11 +15,12 @@ places <- sf::st_sf(
     sf::st_point(c(673510, 6585100)),
     sf::st_point(c(318150, 6398320))
   ),
-  crs = 3006)
+  crs = 3006
+)
 
 places <- sf::read_sf(
   file.path("/vsizip", "vsicurl", "https://geodata.naturvardsverket.se/nedladdning/naturvardsregistret/NP.zip/NP/NP_polygon.shp")
-  ) |>
+) |>
   dplyr::select(NVRID, NAMN, URSBESLDAT) |>
   dplyr::arrange(URSBESLDAT) |>
   sf::st_centroid()
@@ -26,7 +32,7 @@ sweref99_index(x, y, .grid_size = 5000)
 sweref99_index_alphanum(x, y, .grid_size = 5000)
 
 places_xy <- places |>
-  eagles::sfc_as_cols() |>
+  sfc_as_cols() |>
   st_drop_geometry()
 
 sweref99_index(places_xy$x, places_xy$y, .grid_size = 5000)
@@ -38,11 +44,13 @@ grid_sizes_named <- c(100000, 50000, 10000, 5000, 1000) |>
 
 purrr::map_chr(
   grid_sizes,
-  \(g) sweref99_index(x, y, .grid_size = g))
+  \(g) sweref99_index(x, y, .grid_size = g)
+)
 
 purrr::map_chr(
   c(100000, 50000, 10000, 5000, 1000),
-  \(g) sweref99_index_alphanum(x, y, .grid_size = g))
+  \(g) sweref99_index_alphanum(x, y, .grid_size = g)
+)
 
 places |>
   sweref99_index(.grid_size = 5000)
@@ -159,7 +167,6 @@ places |>
   st_transform(3847) |>
   add_rt90_index(.grid_size = c(50000, 25000, 5000))
 
-
 # Test case, RT90:
 # (point 2 is on purpose outside the reference grid!)
 data_ <- st_sf(
@@ -167,8 +174,10 @@ data_ <- st_sf(
   geom = st_sfc(
     st_point(c(1582696, 6583013)),
     st_point(c(1199547, 6524265)),
-    st_point(c(1691235, 7396695))),
-  crs = 3847)
+    st_point(c(1691235, 7396695))
+  ),
+  crs = 3847
+)
 
 mapview::mapview(data_)
 
@@ -191,12 +200,15 @@ rt90_index(data_, rubin = TRUE, rubin_num = 1)
 # SWEREF99 TM (nord, öst)
 # 6523381, 652251
 
-map(c(1000, 5000, 50000), \(x) rt90_index(1605815, 6523806, x))
+map(
+  c(1000, 5000, 50000),
+  \(x) rt90_index(1605815, 6523806, x)
+)
 
 storrutor |> filter(ruta == "9I")
 ekorutor |> filter(ruta == "9I 4b")
 
 purrr::map_chr(
   c("dm", "dms"),
-  \(x) eagles::rc_coords(58.82335, 17.636983, x)
+  \(x) rc_coords(58.82335, 17.636983, x)
 )

@@ -13,7 +13,21 @@
 
 # ToDo: write description what this function actually does in comparison to st_read
 
+
+#' Title
+#'
+#' @param .x
+#' @param data_type
+#' @param bearing
+#' @param convert_time
+#' @param current_time_zone
+#' @param lines
+#' @param ...
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gpx_to_sf <- function(
   .x,
   data_type = c("route_points", "track_points", "waypoints"),
@@ -105,7 +119,16 @@ gpx_to_sf <- function(
 	.x
 }
 
+
+#' Title
+#'
+#' @param .x
+#' @param crs
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gps_route_points <- function(.x, crs = 3006) {
 
   obj <- sf::read_sf(dsn = .x, layer = "route_points") |>
@@ -144,7 +167,16 @@ gps_route_points <- function(.x, crs = 3006) {
     sf::st_transform(crs = crs)
 }
 
+
+#' Title
+#'
+#' @param .x
+#' @param crs
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gps_route_lines <- function(.x, crs = 3006) {
 
   obj <- sf::read_sf(dsn = .x, layer = "route_points") |>
@@ -179,7 +211,17 @@ gps_route_lines <- function(.x, crs = 3006) {
     sf::st_transform(crs = crs)
 }
 
+
+#' Title
+#'
+#' @param .x
+#' @param crs
+#' @param convert_time
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gps_track_lines <- function(.x, crs = 3006, convert_time = FALSE) {
 
   obj <- sf::read_sf(dsn = .x, layer = "track_points") |>
@@ -217,7 +259,15 @@ gps_track_lines <- function(.x, crs = 3006, convert_time = FALSE) {
 # be used outside that function. Out-commented sections of the code
 # should be developed for "independent" use!
 
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
 #' @export
+#'
+#' @examples
 bearing_df <- function(x) {
 
   if (dplyr::is_grouped_df(x)) {
@@ -280,7 +330,16 @@ bearing_df <- function(x) {
 # use fields name, angle, and dist to generate a string
 # NOTE: this function generates a single string, does
 # not group into individual routes!
+
+#' Title
+#'
+#' @param x
+#' @param file_name
+#'
+#' @return
 #' @export
+#'
+#' @examples
 rte_to_txt <- function(x, file_name) {
 	rte_text <- with(x, paste0(name, " >[", round(angle), "°, ", round(dist/1000, 1), " km]"))
 	sink(paste0(file_name, ".txt", sep = ""))
@@ -291,7 +350,16 @@ rte_to_txt <- function(x, file_name) {
 # x is a character string in format: "YYYY-MM-DDTHH:MM:SSZ", default format in gpx-files
 # gpx-time is given in standard "Zulu"-time
 # This function converts the time string to class POSIXlt
+
+#' Title
+#'
+#' @param x
+#' @param tz
+#'
+#' @return
 #' @export
+#'
+#' @examples
 gpx_time_to_time <- function(x, tz = Sys.timezone(location = TRUE)) {
 	d <- gsub(x = gsub(x = x, pattern = "T", replacement = " "), pattern = "Z", replacement = "")
 	d <- as.POSIXct(strptime(d, format = "%Y-%m-%d %H:%M:%S"), tz = "UTC")
@@ -302,7 +370,17 @@ gpx_time_to_time <- function(x, tz = Sys.timezone(location = TRUE)) {
 # UTC = Coordinated Universal Time
 # gpx_time_to_time("2018-04-18T06:40:57Z")
 
+#' Title
+#'
+#' @param dsn
+#' @param layer
+#' @param crs
+#' @param keep_only_necessary
+#'
+#' @return
 #' @export
+#'
+#' @examples
 st_read_gpx <- function(
     dsn,
     layer = "waypoints",
@@ -322,7 +400,14 @@ st_read_gpx <- function(
   .x
 }
 
+#' Title
+#'
+#' @param .x
+#'
+#' @return
 #' @export
+#'
+#' @examples
 trk_preview <- function(.x) {
   leaflet(
     data = sf::st_transform(.x, crs = 4326)
@@ -331,7 +416,16 @@ trk_preview <- function(.x) {
     leaflet::addPolylines()
 }
 
+
+#' Title
+#'
+#' @param x_lines
+#' @param x_points
+#'
+#' @return
 #' @export
+#'
+#' @examples
 rte_arrows <- function(x_lines, x_points) {
   dplyr::bind_cols(
     stdh_cast_substring( {{ x_lines }}, "LINESTRING") |>
@@ -365,6 +459,6 @@ import_gpx <- function(
   sf::read_sf(x, layer = layer) |>
     dplyr::select({{ .cols }}) |>
     sf::st_transform(crs) |>
-    eagles::sfc_as_cols(names = .new_cols) |>
+    sfc_as_cols(names = .new_cols) |>
     dplyr::relocate(geometry, .after = last_col())
 }

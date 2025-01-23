@@ -14,18 +14,44 @@
 # To do: tidy up input and output parameters, handle order x & y
 # in a more consistent way.
 
+#' Title
+#'
+#' @param angle
+#'
+#' @return
 #' @export
+#'
+#' @examples
 deg_to_rad <- function(angle) {
   angle * (base::pi / 180)
 }
 
+#' Title
+#'
+#' @param radians
+#'
+#' @return
 #' @export
+#'
+#' @examples
 rad_to_deg <- function(radians) {
   radians * (180 / base::pi)
 }
 
 # y = ?, x = ?
+
+#' Title
+#'
+#' @param y
+#' @param x
+#' @param crs
+#' @param colnames
+#' @param p
+#'
+#' @return
 #' @export
+#'
+#' @examples
 grid_to_geodetic <- function(
     y, x, crs,
     colnames = c("latitude", "longitude"),
@@ -84,7 +110,19 @@ grid_to_geodetic <- function(
 }
 
 # y = ?, x = ?
+
+#' Title
+#'
+#' @param longitude
+#' @param latitude
+#' @param crs
+#' @param colnames
+#' @param p
+#'
+#' @return
 #' @export
+#'
+#' @examples
 geodetic_to_grid <- function(
     longitude, latitude, crs,
     colnames = c("y", "x"),
@@ -142,7 +180,15 @@ geodetic_to_grid <- function(
   stats::setNames(out, colnames)
 }
 
+#' Title
+#'
+#' @param north
+#' @param east
+#'
+#' @return
 #' @export
+#'
+#' @examples
 detect_crs <- function(north, east) {
   dplyr::case_when(
     between(north, 6100000, 7700000) & between(east, 1200000, 1900000) ~ 3847,
@@ -152,10 +198,29 @@ detect_crs <- function(north, east) {
 }
 
 # Wrapper function(s) for direct transformation
+
+#' Title
+#'
+#' @param .data
+#' @param y
+#' @param x
+#' @param crs_from
+#' @param crs_to
+#' @param round
+#' @param round_grid
+#' @param round_degrees
+#' @param colnames_new
+#'
+#' @return
 #' @export
+#'
+#' @examples
 grid_to_grid <- function(
-    .data, y, x,
-    crs_from, crs_to,
+    .data,
+    y,
+    x,
+    crs_from,
+    crs_to,
     round = FALSE,
     round_grid = 0,
     round_degrees = 6,
@@ -164,7 +229,8 @@ grid_to_grid <- function(
 
   out <- .data |>
     dplyr::mutate(
-      grid_to_geodetic( {{ y }}, {{ x }}, {{ crs_from }} ) )
+      grid_to_geodetic( {{ y }}, {{ x }}, {{ crs_from }} )
+    )
 
   out <- out |>
     dplyr::mutate(
@@ -197,11 +263,29 @@ grid_to_grid <- function(
 # with original input data if input crs == output crs
 # 4) extras: possible to customize column names
 
+#' Title
+#'
+#' @param ost
+#' @param nord
+#' @param crs_from
+#' @param crs_to
+#' @param colnames_geodetic
+#' @param colnames_grid_prefix
+#' @param colnames_grid
+#' @param round
+#' @param round_grid
+#' @param round_degrees
+#' @param keep_original
+#'
+#' @return
 #' @export
+#'
+#' @examples
 swe_transform <- function(
     ost,
     nord,
-    crs_from, crs_to = c(3006, 3847),
+    crs_from,
+    crs_to = c(3006, 3847),
     colnames_geodetic = c("latitude", "longitude"),
     colnames_grid_prefix = c("north", "east"),
     colnames_grid = purrr::map(
@@ -214,7 +298,9 @@ swe_transform <- function(
     keep_original = TRUE
 ) {
 
-  d_geodetic <- grid_to_geodetic({{ost}}, {{nord}}, crs_from, colnames_geodetic)
+  d_geodetic <- grid_to_geodetic(
+    {{ ost }} , {{ nord }}, crs_from, colnames_geodetic
+  )
 
   if (keep_original) {
     d_geodetic[[colnames_geodetic[1]]] <-

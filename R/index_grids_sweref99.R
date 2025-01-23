@@ -4,7 +4,16 @@
 # https://www.lantmateriet.se/sv/Kartor-och-geografisk-information/gps-geodesi-och-swepos/Referenssystem/Inforande-av-SWEREF-99-och-RH-2000/Infoblad/
 # https://www.lantmateriet.se/globalassets/kartor-och-geografisk-information/gps-och-geodetisk-matning/info_blad-11.pdf
 
+#' Title
+#'
+#' @param .y
+#' @param .x
+#' @param sep
+#'
+#' @return
 #' @export
+#'
+#' @examples
 quadrant_cardinal <- function(.y, .x, sep = "") {
   stringr::str_c(
     dplyr::if_else(.y == 0, "S", "N"),
@@ -12,7 +21,15 @@ quadrant_cardinal <- function(.y, .x, sep = "") {
     sep = sep)
 }
 
+#' Title
+#'
+#' @param .x
+#' @param crs
+#'
+#' @return
 #' @export
+#'
+#' @examples
 sweref99_add_prefix <- function(.x, crs) {
 
   crs_codes <- c(
@@ -28,7 +45,17 @@ sweref99_add_prefix <- function(.x, crs) {
     TRUE ~ NA)
 }
 
+#' Title
+#'
+#' @param .x
+#' @param .y
+#' @param .grid_size
+#' @param crs
+#'
+#' @return
 #' @export
+#'
+#' @examples
 sweref99_index <- function(
     .x,
     .y = NULL,
@@ -88,7 +115,17 @@ sweref99_index <- function(
   )
 }
 
+#' Title
+#'
+#' @param .data
+#' @param .grid_size
+#' @param crs
+#' @param .prefix
+#'
+#' @return
 #' @export
+#'
+#' @examples
 add_sweref99_index <- function(
     .data,
     .grid_size = c(100000, 50000, 25000, 10000, 5000, 2500, 1000, 500),
@@ -110,7 +147,7 @@ add_sweref99_index <- function(
 }
 
 # dsn <- "F:/Maps/Ortnamn/GSD-Ortnamn.gpkg"
-# x <- st_read(dsn, query = "SELECT * FROM ortnamn LIMIT 2500;")
+# x <- read_sf(dsn, query = "SELECT * FROM ortnamn LIMIT 2500;")
 #
 # x %>%
 #   add_sweref99_index(.prefix = "ruta")
@@ -118,7 +155,20 @@ add_sweref99_index <- function(
 # x %>%
 #   add_sweref99_index(.grid_size = c(10000, 5000))
 
+#' Title
+#'
+#' @param .x
+#' @param .y
+#' @param .grid_size
+#' @param crs
+#' @param caps
+#' @param space
+#' @param fastighetsblad
+#'
+#' @return
 #' @export
+#'
+#' @examples
 sweref99_index_alphanum <- function(
     .x, .y = NULL,
     .grid_size,

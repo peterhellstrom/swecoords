@@ -21,7 +21,20 @@ xml_fun <- function(x){
    }
 }
 
+#' Title
+#'
+#' @param lat
+#' @param lon
+#' @param simplify
+#' @param from_coord_sys
+#' @param to_coord_sys
+#' @param encoding
+#' @param karta
+#'
+#' @return
 #' @export
+#'
+#' @examples
 get_coord <- function(
     lat, lon, simplify = FALSE,
     from_coord_sys = "AUTO",
@@ -81,7 +94,19 @@ get_coord <- function(
 }
 
 # More modern and "straight-forward" code
+
+#' Title
+#'
+#' @param lat
+#' @param lon
+#' @param from_coord_sys
+#' @param to_coord_sys
+#' @param karta
+#'
+#' @return
 #' @export
+#'
+#' @examples
 get_coord2 <- function(
     lat, lon,
     from_coord_sys = "AUTO",
@@ -96,7 +121,8 @@ get_coord2 <- function(
     url_str,
     \(x) rvest::read_html(x) |>
       rvest::html_node("table") |>
-      rvest::html_table(header = TRUE, fill = TRUE))
+      rvest::html_table(header = TRUE, fill = TRUE)
+    )
 
   if(!karta) res |> dplyr::select(-Karta)
   res
