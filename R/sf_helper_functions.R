@@ -230,6 +230,72 @@ st_join_n_loop <- function(.data, .join_data) {
 
 #' Title
 #'
+#' @param x
+#' @param y
+#' @param output
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+st_nearest_feature_with_distance <- function(x, y, output = c("x", "y")) {
+
+  output <- match.arg(output, c("x", "y"))
+
+  x_inds_nearest <- x |>
+    sf::st_nearest_feature(y)
+
+  y_nearest <- dplyr::slice(y, x_inds_nearest)
+
+  d <- sf::st_distance(
+    x,
+    y_nearest,
+    by_element = TRUE
+  )
+
+  x_join <- x |>
+    sf::st_join(
+      y,
+      join = sf::st_nearest_feature
+    )
+
+  if (output == "x") {
+    out <- x_join
+  } else {
+    out <- y_nearest
+  }
+
+  out$distance  <- d
+  out
+}
+
+#' Title
+#'
+#' @param x
+#' @param y
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+st_nearest_points2 <- function(x, y) {
+  sf::st_nearest_points(
+    x,
+    dplyr::slice(
+      y,
+      x |>
+        sf::st_nearest_feature(y)
+    ),
+    pairwise = TRUE
+  ) |>
+    sf::st_sf(geom = _) |>
+    dplyr::mutate(
+      distance = sf::st_length(geom)
+    )
+}
+
+#' Title
+#'
 #' @param polygons
 #' @param points
 #' @param fn
