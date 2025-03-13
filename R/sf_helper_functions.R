@@ -242,6 +242,8 @@ st_nearest_feature_with_distance <- function(x, y, output = c("x", "y")) {
 
   output <- match.arg(output, c("x", "y"))
 
+  # Note that st_join with predicate sf_nearest_feature can
+  # be used for this type of operations as well!
   x_inds_nearest <- x |>
     sf::st_nearest_feature(y)
 
