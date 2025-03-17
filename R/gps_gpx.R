@@ -4,7 +4,7 @@
 #' @param extension
 #' @param index
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -17,7 +17,7 @@ gpx_categ_n <- function(.x, extension = "gpxx_WaypointExtension", index) {
 #'
 #' @param .x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -54,7 +54,7 @@ gpx_categ <- function(.x) {
 #' @param ele
 #' @param time
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -76,7 +76,7 @@ gpx_trkpt <- function(lat, lon, ele = NULL, time = NULL){
 #' @param df
 #' @param name
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -95,7 +95,7 @@ gpx_trk <- function(df, name = NULL) {
 #'
 #' @param creator
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -117,7 +117,7 @@ gpx_header <- function(
 
 #' Title
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -131,7 +131,7 @@ gpx_end <- function(){
 #'
 #' @param creator
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -158,7 +158,7 @@ add_gpx <-  function(
 #' @param desc
 #' @param display_color
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -216,7 +216,7 @@ add_trk <- function(
 #' @param desc
 #' @param display_color
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

@@ -5,7 +5,7 @@
 #' @param driver
 #' @param filter_expr
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

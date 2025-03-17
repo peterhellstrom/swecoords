@@ -31,7 +31,7 @@ xml_fun <- function(x){
 #' @param encoding
 #' @param karta
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -103,7 +103,7 @@ get_coord <- function(
 #' @param to_coord_sys
 #' @param karta
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

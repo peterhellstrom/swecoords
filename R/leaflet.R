@@ -12,7 +12,7 @@
 
 #' Title
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -42,7 +42,7 @@ leaflet_crs_3006 <- function() {
 #' @param styles
 #' @param ...
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -74,7 +74,7 @@ wms_add <- function(
 #' @param url_sheet
 #' @param sep
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -111,7 +111,7 @@ wms_sources <- function(
 #' @param collapseLayersControl
 #' @param add_extras
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -205,7 +205,7 @@ lm_basemaps <- function(
 #' @param addOverlayGroups
 #' @param CollapseLayerscontrol
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -367,7 +367,7 @@ lm_basemaps_old <- function(
 #'
 #' @param map
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -416,7 +416,7 @@ lm_basemaps_add_extras <- function(map) {
 #'
 #' @param x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -430,7 +430,7 @@ remove_na <- function(x) {
 #' @param x
 #' @param y
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -444,7 +444,7 @@ options_sublist <- function(x, y = c("service", "group", "urlTemplate")) {
 #' @param path
 #' @param layers_sheet
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -471,7 +471,7 @@ tms_sources <- function(
 #' @param lat
 #' @param zoom
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -515,7 +515,7 @@ swe_tiles <- function(
 #' @param fitbounds
 #' @param zoom
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

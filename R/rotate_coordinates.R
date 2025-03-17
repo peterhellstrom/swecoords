@@ -27,7 +27,7 @@
 #' @param y.origo
 #' @param output
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -79,7 +79,7 @@ rotate_pt <- function(x, y, angle, x.origo = NULL, y.origo = NULL, output = "sho
 #' @param y.origo
 #' @param output
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

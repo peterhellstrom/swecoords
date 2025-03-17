@@ -2,7 +2,7 @@
 #'
 #' @param .data
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -19,7 +19,7 @@ get_line_components <- function(.data) {
 #'
 #' @param .data
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

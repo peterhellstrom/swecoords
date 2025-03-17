@@ -18,7 +18,7 @@
 #' @param direction
 #' @param data
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -62,7 +62,7 @@ daro_flode <- function(aroid, direction = c("down", "up"), data = daro) {
 #' @param index
 #' @param add_flow_id
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -97,7 +97,7 @@ daro_flode_sf <- function(data, index, add_flow_id = FALSE) {
 #' @param .x
 #' @param .field
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -144,7 +144,7 @@ aroid_group <- function(.x, .field) {
 #' @param .field
 #' @param .attr_field
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -187,7 +187,7 @@ aroid_group_dissolve <- function(
 #' @param union
 #' @param union_method
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

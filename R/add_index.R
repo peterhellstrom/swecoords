@@ -8,7 +8,7 @@
 #' @param .keep
 #' @param ...
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -43,7 +43,7 @@ add_index_1 <- function(
 #' @param .keep
 #' @param ...
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

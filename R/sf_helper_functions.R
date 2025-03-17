@@ -7,7 +7,7 @@
 #' @param names
 #' @param drop_geometry
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -38,7 +38,7 @@ sfc_as_cols <- function(x, geometry, names = c("x","y"), drop_geometry = FALSE) 
 #' @param coords
 #' @param crs
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -57,7 +57,7 @@ st_add_geom_column <- function(.x, coords, crs = 3006) {
 #' @param centroid
 #' @param crs
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -93,7 +93,7 @@ st_add_geom_column_round <- function(
 #'
 #' @param .x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -121,7 +121,7 @@ st_extract_pt_coords <- function (.x) {
 #' @param x
 #' @param y
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -134,7 +134,7 @@ st_erase <- function(x, y) {
 #' @param x
 #' @param y
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -163,7 +163,7 @@ st_union_full <- function(x, y) {
 #' @param .y
 #' @param .pred
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -186,7 +186,7 @@ st_filter = function(.x, .y, .pred = sf::st_intersects) {
 #' @param .join_data
 #' @param .join_columns
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -217,7 +217,7 @@ st_join_n <- function(
 #' @param .data
 #' @param .join_data
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -303,7 +303,7 @@ st_nearest_points2 <- function(x, y) {
 #' @param fn
 #' @param name
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -321,7 +321,7 @@ count_points_in_polygons <- function(
 #'
 #' @param x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -339,7 +339,7 @@ list_layers <- function(x) {
 #'
 #' @param .x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -353,7 +353,7 @@ st_layers_tibble <- function(.x) {
 #' @param x
 #' @param to
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -401,7 +401,7 @@ stdh_cast_substring <- function(x, to = "MULTILINESTRING") {
 #' @param .crs
 #' @param .area_unit
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -446,7 +446,7 @@ split_holes <- function(.data, .crs = 3006, .area_unit = "km^2") {
 #' @param x
 #' @param y
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -479,7 +479,7 @@ get_nearest <- function(x, y) {
 #' @param .data
 #' @param .na_values
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

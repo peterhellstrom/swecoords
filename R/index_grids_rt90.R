@@ -4,7 +4,7 @@
 #'
 #' @param x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -49,7 +49,7 @@ rubin_width <- function(x) {
 #' @param x_min
 #' @param x_max
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -177,7 +177,7 @@ rt90_index <- function(
 #' @param .prefix
 #' @param ...
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -231,7 +231,7 @@ add_rt90_index <- function(
 #' @param grid
 #' @param .grid_size
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

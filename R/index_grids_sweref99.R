@@ -10,7 +10,7 @@
 #' @param .x
 #' @param sep
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -26,7 +26,7 @@ quadrant_cardinal <- function(.y, .x, sep = "") {
 #' @param .x
 #' @param crs
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -52,7 +52,7 @@ sweref99_add_prefix <- function(.x, crs) {
 #' @param .grid_size
 #' @param crs
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -122,7 +122,7 @@ sweref99_index <- function(
 #' @param crs
 #' @param .prefix
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -165,7 +165,7 @@ add_sweref99_index <- function(
 #' @param space
 #' @param fastighetsblad
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

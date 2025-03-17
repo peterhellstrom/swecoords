@@ -18,7 +18,7 @@
 #'
 #' @param angle
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -30,7 +30,7 @@ deg_to_rad <- function(angle) {
 #'
 #' @param radians
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -48,7 +48,7 @@ rad_to_deg <- function(radians) {
 #' @param colnames
 #' @param p
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -119,7 +119,7 @@ grid_to_geodetic <- function(
 #' @param colnames
 #' @param p
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -185,7 +185,7 @@ geodetic_to_grid <- function(
 #' @param north
 #' @param east
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -211,7 +211,7 @@ detect_crs <- function(north, east) {
 #' @param round_degrees
 #' @param colnames_new
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -277,7 +277,7 @@ grid_to_grid <- function(
 #' @param round_degrees
 #' @param keep_original
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

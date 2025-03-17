@@ -13,7 +13,7 @@
 #' @param crs
 #' @param direction
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -72,7 +72,7 @@ grid_polygons <- function(
 #' @param delta_y
 #' @param direction
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -121,7 +121,7 @@ grid_cell <- function(
 #' @param min_y
 #' @param max_y
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -152,7 +152,7 @@ grid_parms <- function(
 #' @param g
 #' @param centroid
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -173,7 +173,7 @@ round_coords <- function(.x, g, centroid = FALSE) {
 #' @param .x
 #' @param .size
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -196,7 +196,7 @@ st_bbox_round <- function(.x, .size) {
 #' @param .data
 #' @param .grp
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -216,7 +216,7 @@ extract_lower_left <- function(.data, .grp = L2) {
 #' @param .data
 #' @param .grp
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -236,7 +236,7 @@ extract_lower_left_2 <- function(.data, .grp = ruta) {
 #' @param grid_size
 #' @param .fn
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -275,7 +275,7 @@ grid_filter <- function(
 #' @param file_name
 #' @param file_list
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -301,7 +301,7 @@ gdaltindex <- function(file_name, file_list) {
 #' @param overlap
 #' @param round
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -340,7 +340,7 @@ layout_grid_size <- function(
 #' @param col_offset
 #' @param page_variable
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -362,7 +362,7 @@ find_page_number <- function(.data, row_offset, col_offset, page_variable) {
 #' @param sep
 #' @param add_neighbours
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

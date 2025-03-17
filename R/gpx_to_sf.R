@@ -24,7 +24,7 @@
 #' @param lines
 #' @param ...
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -125,7 +125,7 @@ gpx_to_sf <- function(
 #' @param .x
 #' @param crs
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -173,7 +173,7 @@ gps_route_points <- function(.x, crs = 3006) {
 #' @param .x
 #' @param crs
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -218,7 +218,7 @@ gps_route_lines <- function(.x, crs = 3006) {
 #' @param crs
 #' @param convert_time
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -264,7 +264,7 @@ gps_track_lines <- function(.x, crs = 3006, convert_time = FALSE) {
 #'
 #' @param x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -336,7 +336,7 @@ bearing_df <- function(x) {
 #' @param x
 #' @param file_name
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -356,7 +356,7 @@ rte_to_txt <- function(x, file_name) {
 #' @param x
 #' @param tz
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -377,7 +377,7 @@ gpx_time_to_time <- function(x, tz = Sys.timezone(location = TRUE)) {
 #' @param crs
 #' @param keep_only_necessary
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -404,7 +404,7 @@ st_read_gpx <- function(
 #'
 #' @param .x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -422,7 +422,7 @@ trk_preview <- function(.x) {
 #' @param x_lines
 #' @param x_points
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -445,7 +445,7 @@ rte_arrows <- function(x_lines, x_points) {
 #' @param crs
 #' @param .new_cols
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

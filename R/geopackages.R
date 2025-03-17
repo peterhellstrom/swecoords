@@ -3,7 +3,7 @@
 #' @param .x
 #' @param include_bbox
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -66,7 +66,7 @@ gpkg_contents <- function(.x, include_bbox = TRUE) {
 #' @param epsg
 #' @param delete_srid
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

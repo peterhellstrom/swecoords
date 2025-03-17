@@ -18,7 +18,7 @@
 #'
 #' @param .x
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -40,7 +40,7 @@ ellipsoid <- function(.x) {
 #'
 #' @param crs
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -284,7 +284,7 @@ swedish_parameters <- function(crs) {
 #'
 #' @param crs
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
@@ -303,7 +303,7 @@ extract_prj4 <- function(crs) {
 #'
 #' @param proj_path
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples

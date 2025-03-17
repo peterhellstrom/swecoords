@@ -4,7 +4,7 @@
 #' @param outformat
 #' @param digits
 #'
-#' @return
+#' @returns
 #' @export
 #'
 #' @examples
