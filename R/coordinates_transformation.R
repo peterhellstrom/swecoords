@@ -53,7 +53,9 @@ rad_to_deg <- function(radians) {
 #'
 #' @examples
 grid_to_geodetic <- function(
-    y, x, crs,
+    y,
+    x,
+    crs,
     colnames = c("latitude", "longitude"),
     p = NULL) {
 
@@ -192,7 +194,7 @@ geodetic_to_grid <- function(
 detect_crs <- function(north, east) {
   dplyr::case_when(
     between(north, 6100000, 7700000) & between(east, 1200000, 1900000) ~ 3847,
-    between(north, 6000000, 7700000) & between(east, 200000, 1000000) ~ 3006,
+    between(north, 6110000, 7700000) & between(east, 200000, 1000000) ~ 3006,
     between(north, 54, 70) & between(east, 10, 26) ~ 4326
   )
 }

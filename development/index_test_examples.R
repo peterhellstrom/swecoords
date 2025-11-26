@@ -3,11 +3,14 @@ library(sf)
 
 devtools::load_all()
 
+# Create example data ----
+## Example 1: ortnamn ----
 places <- sf::read_sf(
   "G:/Ortnamn/ortnamn_sverige.gpkg",
   query = "SELECT * FROM ortnamn LIMIT 2500;"
 )
 
+## Example 2: Two natural history museums ----
 places <- sf::st_sf(
   id = 1:2,
   name = c("Naturhistoriska riksmuseet, Stockholm", "Naturhistoriska museet, Göteborg"),
@@ -18,12 +21,15 @@ places <- sf::st_sf(
   crs = 3006
 )
 
+## Example 3: Swedish national parks ----
 places <- sf::read_sf(
   file.path("/vsizip", "vsicurl", "https://geodata.naturvardsverket.se/nedladdning/naturvardsregistret/NP.zip/NP/NP_polygon.shp")
 ) |>
   dplyr::select(NVRID, NAMN, URSBESLDAT) |>
   dplyr::arrange(URSBESLDAT) |>
+  # Convert to points by calculating centroid
   sf::st_centroid()
+
 
 x <- 673510
 y <- 6585100
@@ -138,20 +144,14 @@ purrr::map_dfr(
   \(g) sweref99_index_alphanum(places, .grid_size = g)
 )
 
-dplyr::bind_cols(
-  places,
-  purrr::map_dfr(
-    grid_sizes_named,
-    \(g) sweref99_index_alphanum(places, .grid_size = g)
-  )
-)
-
-sweref99_index_alphanum(places, .grid_size = 10000)
 
 places |>
-  sweref99_index_alphanum(.grid_size = 10000)
-
-sweref99_index_alphanum(places, .grid_size = 10000, fastighetsblad = TRUE)
+  mutate(
+    purrr::map_dfr(
+      grid_sizes_named,
+      \(g) sweref99_index(places, .grid_size = g)
+    )
+  )
 
 places |>
   add_sweref99_index(.prefix = "ruta")
@@ -212,3 +212,4 @@ purrr::map_chr(
   c("dm", "dms"),
   \(x) rc_coords(58.82335, 17.636983, x)
 )
+

@@ -326,15 +326,34 @@ count_points_in_polygons <- function(
 #'
 #' @examples
 list_layers <- function(x) {
-  tibble::tibble(
-    name = x$name,
-    geomtype = unlist(x$geomtype),
-    driver = x$driver,
-    features = x$features,
-    fields = x$fields)
+
+  # tibble::tibble(
+  #   name = x$name,
+  #   geomtype = unlist(x$geomtype),
+  #   driver = x$driver,
+  #   features = x$features,
+  #   fields = x$fields
+  # )
+
+  with(
+    x,
+    tibble::tibble(
+      name = name,
+      geometry_type = geomtype,
+      driver,
+      features,
+      fields,
+      crs
+    )
+  ) |>
+    dplyr::mutate(
+      geometry_type = purrr::map_chr(geometry_type, \(x) x),
+      crs_input = purrr::map_chr(crs, \(x) x$input)
+      # crs_wkt = purrr::map_chr(crs, \(x) x$wkt)
+    ) |>
+    dplyr::select(-crs)
 }
 
-# Note: st_layers does not include feature dataset for FileGDBs
 #' Title
 #'
 #' @param .x
@@ -418,12 +437,12 @@ split_holes <- function(.data, .crs = 3006, .area_unit = "km^2") {
       dplyr::group_split() %>%
       # Convert to sf-object, polygons
       purrr::map(~ dplyr::select(., X, Y) %>%
-            as.matrix() %>%
-            list(.) %>%
-            sf::st_polygon() %>%
-            sf::st_sfc(crs = .crs) %>%
-            sf::st_sf()
-          )
+                   as.matrix() %>%
+                   list(.) %>%
+                   sf::st_polygon() %>%
+                   sf::st_sfc(crs = .crs) %>%
+                   sf::st_sf()
+      )
 
     out <- out %>%
       # Bind all polygons together

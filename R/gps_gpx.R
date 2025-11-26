@@ -1,49 +1,5 @@
-#' Title
-#'
-#' @param .x
-#' @param extension
-#' @param index
-#'
-#' @returns
-#' @export
-#'
-#' @examples
-gpx_categ_n <- function(.x, extension = "gpxx_WaypointExtension", index) {
-  word_list = stringr::str_split(.x[[extension]], '\\s+')
-  gsub(x = sapply(word_list, "[", index), pattern = "</gpxx:Category>", replacement = "")
-}
-
-#' Title
-#'
-#' @param .x
-#'
-#' @returns
-#' @export
-#'
-#' @examples
-gpx_categ <- function(.x) {
-  .x %>%
-    dplyr::mutate(
-      Category =
-        unglue::unglue_vec(
-          gpxx_WaypointExtension,
-          "{}<gpxx:Category>{x}</gpxx:Category>{}"),
-      CreationTime =
-        unglue::unglue_vec(
-          ctx_CreationTimeExtension,
-          "{}<ctx:CreationTime>{x}</ctx:CreationTime>{}")
-    ) %>%
-    dplyr::select(
-      -gpxx_WaypointExtension,
-      -wptx1_WaypointExtension,
-      -ctx_CreationTimeExtension
-    ) %>%
-    dplyr::select(
-      Category, name, ele, time, sym, cmt, desc, CreationTime
-    )
-}
-
 # custom gpx-creation functions
+# Source: ?
 
 ## Creates a track point list ----
 
@@ -58,13 +14,17 @@ gpx_categ <- function(.x) {
 #' @export
 #'
 #' @examples
-gpx_trkpt <- function(lat, lon, ele = NULL, time = NULL){
+gpx_trkpt <- function(lat, lon, ele = NULL, time = NULL) {
   trkpt <- stringr::str_c(
     "<trkpt lat=", glue::double_quote(lat), " lon=", glue::double_quote(lon), ">"
   )
-  if (!is.null(ele) && !is.na(ele)) trkpt <- c(trkpt, stringr::str_c("<ele>", ele, "</ele>"))
+  if (!is.null(ele) && !is.na(ele)) {
+    trkpt <- c(trkpt, stringr::str_c("<ele>", ele, "</ele>"))
+  }
   ## check time is a in character with format %Y-%m-%dT%H:%M:%sZ (UTC time zone)
-  if (!is.null(time) && !is.na(time)) trkpt <- c(trkpt, stringr::str_c("<time>", time, "</time>"))
+  if (!is.null(time) && !is.na(time)) {
+    trkpt <- c(trkpt, stringr::str_c("<time>", time, "</time>"))
+  }
   trkpt <- c(trkpt, "</trkpt>")
   return(trkpt)
 }
@@ -82,9 +42,11 @@ gpx_trkpt <- function(lat, lon, ele = NULL, time = NULL){
 #' @examples
 gpx_trk <- function(df, name = NULL) {
   trk <- "<trk>"
-  if (!is.null(name)) trk <- c(trk, stringr::str_c("<name>", name, "</name>"))
+  if (!is.null(name)) {
+    trk <- c(trk, stringr::str_c("<name>", name, "</name>"))
+  }
   trk <- c(trk, "<trkseg>")
-  list_resu <- purrr::pmap(df, gpx_trkpt) %>% unlist()
+  list_resu <- purrr::pmap(df, gpx_trkpt) |> unlist()
   trk <- c(trk, list_resu, "</trkseg>", "</trk>")
   return(trk)
 }
@@ -104,7 +66,9 @@ gpx_header <- function(
 
   header <- c(
     "<?xml version='1.0' encoding='UTF-8' ?>",
-    stringr::str_c("<gpx version=", glue::double_quote("1.1"), " creator=", glue::double_quote(creator)),
+    stringr::str_c(
+      "<gpx version=", glue::double_quote("1.1"), " creator=", glue::double_quote(creator)
+    ),
     "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"",
     "xmlns=\"http://www.topografix.com/GPX/1/1\"",
     "xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">"
@@ -168,7 +132,7 @@ add_trk <- function(
     name = NULL,
     desc = NULL,
     display_color = "Red"
-    ) {
+) {
 
   # Add main track node
   trk_node <- xml2::xml_add_child(parent, "trk")
@@ -272,7 +236,8 @@ add_rte <- function(
 
   xml2::xml_add_child(
     xml2::xml_find_all(
-      rtept_ext_nodes, ".//gpxx:RoutePointExtension"),
+      rtept_ext_nodes, ".//gpxx:RoutePointExtension"
+    ),
     "gpxx:Subclass", "000000000000FFFFFFFFFFFFFFFFFFFFFFFF"
   )
 

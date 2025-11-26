@@ -3,6 +3,7 @@
 # devtools::install_github("r-lib/usethis")
 
 library(devtools)
+library(usethis)
 
 # Create project ----
 # p <- "W:/projects/R/swecoords"
@@ -131,11 +132,11 @@ tms_layers_data
 storrutor |>
   sf::st_as_sf(
     coords = c("easting", "northing"),
-    crs = 3021
+    crs = 3847
   ) |>
   mapview::mapview(layer.name = "Storrutor 50km RT90 2.5 gon V")
 
-grid_rt_90 <- function(.data, grid_size, crs = 3021) {
+grid_polygons <- function(.data, grid_size, crs = 3847) {
   .data |>
     dplyr::mutate(
       geometry = purrr::map2(
@@ -146,11 +147,29 @@ grid_rt_90 <- function(.data, grid_size, crs = 3021) {
     sf::st_as_sf(crs = crs)
 }
 
-grid_rt_90(storrutor, 50000) |>
+grid_polygons(storrutor, 50000) |>
   mapview::mapview()
 
-grid_rt_90(ekorutor, 5000) |>
+grid_polygons(ekorutor, 5000) |>
   mapview::mapview()
+
+ekorutor |> 
+  mutate(
+    geometry = glue::glue("SRID=3847;POINT ({easting} {northing})")
+  ) |> 
+  st_as_sf(wkt = "geometry")
+
+# Recent problem with filtered/piped data in mapview!
+# Specify layer name if you get error message "Error: cannot open the connection"
+# It has been suggested that this error originated in R 4.5, but I get it
+# in R 4.3.3 as well.
+# There is an open issue about this:
+# https://github.com/r-spatial/mapview/issues/505
+
+ekorutor |> 
+  filter(str_detect(ruta, "10I")) |> 
+  grid_polygons(5000) |> 
+  mapview(layer.name = "Ekorutor 10I")
 
 ## Test functions ----
 lm_basemaps()

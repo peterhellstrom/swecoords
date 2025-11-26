@@ -325,3 +325,25 @@ proj_crs <- function(
   crs_table |>
     tibble::as_tibble()
 }
+
+#' Title
+#'
+#' @param .crs
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+crs_prj4 <- function(.crs) {
+  purrr::map(
+    .crs,
+    extract_prj4
+  ) |>
+    purrr::list_rbind() |>
+    tibble::as_tibble() |>
+    dplyr::mutate(
+      code = readr::parse_number(code) |>
+        as.integer()
+    ) |>
+    dplyr::rename(name = note)
+}
